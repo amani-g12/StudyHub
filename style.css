@@ -1,0 +1,82 @@
+:root{
+    --background-color: rgb(212, 177, 228);
+    --text-color: rgb(98, 36, 126);
+    --accent: rgb(216, 204, 230);
+}
+
+*{
+    box-sizing: border-box;
+    font-family: Trebuchet, sans-serif;
+}
+
+body {
+    margin: 0;
+    color: var(--text-color);
+    background-color:var(--background-color);
+}
+
+.app{
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    min-height: 100vh;
+}
+
+.sidebar{
+    background-color: white;
+    padding: 30px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.sidebar h1{
+    font-size: 24px;
+    margin-bottom: 30px;
+    margin: 9px;
+}
+
+.sidebar a {
+    text-decoration: none;
+    color: rgb(65, 9, 91);
+    font-weight: bold;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.sidebar a:hover {
+    background-color: var(--accent)
+}
+
+.main-content {
+    padding: 40px;
+}
+
+.assignment-list {
+    display: grid;
+    gap: 12px;
+}
+
+.assignment {
+    display: grid;
+    grid-template-columns: 150px 1fr 100px 120px;
+    align-items: center;
+
+    background-color: white;
+    padding: 18px 20px;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.5s ease;
+}
+
+.assignment:hover {
+    transform: translateY(-2px);
+}
+
+.course {
+    font-weight: bold;
+}
+
+.due-date {
+    font-weight: bold;
+}
