@@ -1,10 +1,17 @@
-const dashboardLink = document.getElementById("dashboard-link");
 const mainContent = document.getElementById("main-content");
+const dashboardLink = document.getElementById("dashboard-link");
 const coursesLink = document.getElementById("courses-link");
+const assignmentsLink = document.getElementById("assignments-link");
 
 
 
-dashboardLink.addEventListener("click", showDashboard);
+dashboardLink.addEventListener("click", function(event){
+
+    event.preventDefault();
+    showDashboard();
+
+});
+
 
 coursesLink.addEventListener("click", function(event){
 
@@ -13,6 +20,109 @@ coursesLink.addEventListener("click", function(event){
 
 });
 
+assignmentsLink.addEventListener("click", function(event){
+
+    event.preventDefault();
+    showAssignments();
+
+});
+
+
+function showAssignments() {
+    mainContent.innerHTML = `
+
+    <h2>Assignments</h2>
+
+    <button id="add-assignment-button">Add Assignment</button>
+
+    <div class="assignment-list" id="assignment-list"></div>
+    `;
+
+    const addAssignmentButton = document.getElementById("add-assignment-button");
+
+    addAssignmentButton.addEventListener("click", function() {
+        showAssignmentForm();
+    });
+
+    renderAssignments();
+}
+
+
+function showAssignmentForm() {
+    mainContent.innerHTML = `
+        <h2>Add Assignment</h2>
+
+        <form id="assignment-form" novalidate>
+
+            <label>Assignment Name</label>
+            <input type="text" id="assignment-name">
+
+            <label>Course</label>
+            <input type="text" id="assignment-course">
+
+            <label>Due Date</label>
+            <input type="date" id="assignment-due-date">
+
+            <label>Weight (%)</label>
+            <input type="number" id="assignment-weight">
+
+            <label>Priority</label>
+            <select id="assignment-priority">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+            </select>
+
+            <label>Notes</label>
+            <textarea id="assignment-notes"></textarea>
+
+            <button type="submit">Add Assignment</button>
+
+        </form>
+    `;
+
+    const assignmentForm = document.getElementById("assignment-form");
+
+    assignmentForm.addEventListener("submit", function(event) {
+
+
+        event.preventDefault();
+
+        const name = document.getElementById("assignment-name").value.trim();
+        const course = document.getElementById("assignment-course").value.trim();
+        const dueDate = document.getElementById("assignment-due-date").value;
+        const weight = document.getElementById("assignment-weight").value;
+        const priority = document.getElementById("assignment-priority").value;
+        const notes = document.getElementById("assignment-notes").value.trim();
+
+        if (name === "" || course === "" || dueDate === "" || weight === ""){
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        const newAssignment = {
+
+            id: assignments.length + 1,
+            name: name,
+            course: course,
+            dueDate: dueDate,
+            weight: Number(weight),
+            priority: priority,
+            completed: false,
+            notes: notes
+        }
+        assignments.push(newAssignment);
+
+        localStorage.setItem("assignments", JSON.stringify(assignments));
+
+        showAssignments();
+
+        });
+
+
+
+
+}
 
 
 
@@ -43,7 +153,7 @@ function showDashboard() {
 
 /* ASSIGNMENTS */
 
-const assignments = [
+const defaultAssignments = [
     {
         id:1,
         name: "Assignment 2",
@@ -78,6 +188,9 @@ const assignments = [
     }
 ];
 
+
+let assignments = JSON.parse(localStorage.getItem("assignments")) || defaultAssignments;
+
 function renderAssignments(){
 
     const assignmentList = document.getElementById("assignment-list");
@@ -90,11 +203,35 @@ function renderAssignments(){
 
 
         assignmentElement.innerHTML = `
+            <input type="checkbox">
             <span class="course">${assignment.course}</span>
             <span class="assignment-name">${assignment.name}</span>
             <span class="weight">${assignment.weight}%</span>
             <span class="due-date">${assignment.dueDate}</span>
+            <span class="priority">${assignment.priority}</span>
+            <span class="notes">${assignment.notes}</span>
         `;
+
+        const checkbox = assignmentElement.querySelector("input");
+
+        checkbox.checked = assignment.completed;
+        if (assignment.completed) {
+            assignmentElement.classList.add("completed");
+            }
+        
+
+
+        checkbox.addEventListener("change", function() {
+            assignment.completed = checkbox.checked;
+            if (assignment.completed){
+            assignmentElement.classList.add("completed");
+            }
+            else{
+                assignmentElement.classList.remove("completed");
+            }
+
+        });
+
 
         assignmentList.appendChild(assignmentElement);
     }

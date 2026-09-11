@@ -61,7 +61,7 @@ body {
 
 .assignment {
     display: grid;
-    grid-template-columns: 150px 1fr 100px 120px;
+    grid-template-columns: 50px 150px 200px 150px 120px 100px 1fr;
     align-items: center;
 
     background-color: white;
@@ -82,6 +82,11 @@ body {
 
 .due-date {
     font-weight: bold;
+}
+
+.completed {
+    text-decoration: line-through;
+    opacity: 0.5;
 }
 
 
