@@ -193,7 +193,34 @@ function renderUpcomingAssignments() {
 
     assignmentList.innerHTML = "";
 
-    for (const assignment of assignments) {
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const nextWeek = new Date(today);
+    nextWeek.setDate(today.getDate() + 6);
+
+
+    const upcomingAssignments = assignments.filter(function(assignment) {
+
+        const dueDate = new Date(assignment.dueDate + "T00:00:00");
+        
+        
+        return !assignment.completed && 
+               dueDate >= today &&
+               dueDate <= nextWeek; /*To make sure that the assignments 
+               displayed on dashboard are omly ones that are due within the next week.*/
+    });
+
+
+    upcomingAssignments.sort(function(a,b) {
+
+        return new Date(a.dueDate + "T00:00:00") - new Date(b.dueDate + "T00:00:00");
+
+    });
+
+
+    for (const assignment of upcomingAssignments) {
 
         const assignmentElement = document.createElement("div");
 
