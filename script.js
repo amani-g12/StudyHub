@@ -41,6 +41,7 @@ function showDashboard() {
 
         <section class="tasks">
           <h3>Tasks</h3>
+          <button id="add-tasks-button">Add Task</button>
           <div class="tasks-list" id="task-list"></div>
         </section>
     
@@ -48,6 +49,12 @@ function showDashboard() {
 
     renderUpcomingAssignments();
     renderTasks();
+
+    const addTasksButton = document.getElementById("add-tasks-button");
+
+    addTasksButton.addEventListener("click", function() {
+        showTaskForm();
+    });
 }
 
 
@@ -123,43 +130,9 @@ function showAssignments() {
 
 /* ASSIGNMENTS */
 
-const defaultAssignments = [
-    {
-        id:1,
-        name: "Assignment 2",
-        course: "MAT 1341",
-        dueDate: "2026-09-10",
-        weight: 10,
-        priority: "High",
-        completed: false,
-        notes: "Review chapters 1 and 5"
-    },
-
-    {
-        id:2,
-        name: "Lab 1",
-        course: "CSI 2101",
-        dueDate: "2026-09-12",
-        weight: 5,
-        priority: "Medium",
-        completed: false,
-        notes: "Review lab instructions"
-    },
-
-    {
-        id:3,
-        name: "Lab Report",
-        course: "SEG 2105",
-        dueDate: "2026-09-15",
-        weight: 20,
-        priority: "High",
-        completed: false,
-        notes: "Choose a topic"
-    }
-];
 
 
-let assignments = JSON.parse(localStorage.getItem("assignments")) || defaultAssignments;
+let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
 
 
 function populateCourseFilter() {
@@ -235,6 +208,16 @@ function renderUpcomingAssignments() {
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
         `;
+
+        const checkbox = assignmentElement.querySelector("input");
+
+        checkbox.addEventListener("change", function() {
+            assignment.completed = checkbox.checked;
+
+            localStorage.setItem("assignments", JSON.stringify(assignments));
+
+            renderUpcomingAssignments();
+    });
 
         assignmentList.appendChild(assignmentElement);
     }
@@ -348,7 +331,6 @@ function renderAssignments(){
         assignmentList.appendChild(assignmentElement);
     }
 }
-
 
 
 
@@ -497,58 +479,34 @@ function showEditAssignmentForm(assignment) {
 
 /* TASKS */
 
-const tasks = [
-    {
-        id: 1,
-        course: "MAT 1341",
-        description: "Read Chapter 4",
-        completed: false
-    },
 
-    {
-        id: 2,
-        course: "MAT 1341",
-        description: "Complete practice problems",
-        completed: false
-    },
-
-    {
-        id: 3,
-        course: "MAT 1341",
-        description: "Review lecture notes",
-        completed: false
-    },
-
-    {
-        id: 4,
-        course: "CSI 2101",
-        description: "Finish lab preparation",
-        completed: false
-    },
-
-    {
-        id: 5,
-        course: "CSI 2101",
-        description: "Review lecture slides",
-        completed: false
-    }
-];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 function renderTasks() {
 
     const tasksList = document.getElementById("task-list");
 
+    tasksList.innerHTML = "";
+
+    const sortedTasks = [...tasks];
+
+    sortedTasks.sort(function(a, b) {
+        return new Date(a.dueDate + "T00:00:00") - new Date(b.dueDate + "T00:00:00");
+    });
+
     const taskGroups = {};
 
-    for (const task of tasks){
+    for (const task of sortedTasks){
 
         if (!taskGroups[task.course]) {
+
             const taskGroup = document.createElement("div");
+
             taskGroup.classList.add("task-group");
 
             taskGroup.innerHTML = `
-            <h4>${task.course}</h4>
-        `;
+                <h4>${task.course}</h4>
+            `;
 
             tasksList.appendChild(taskGroup);
 
@@ -562,16 +520,134 @@ function renderTasks() {
         taskElement.innerHTML = `
             <input type="checkbox">
             <span>${task.description}</span>
-        `
+            <span class="task-due-date">${formatDate(task.dueDate)}</span>
+            <button class="delete-task">Delete</button>
+        `;
+
+        const checkbox = taskElement.querySelector("input");
+        const deleteButton = taskElement.querySelector(".delete-task");
+
+        checkbox.checked = task.completed;
+
+        if (task.completed) {
+            taskElement.classList.add("completed");
+        }
+
+        checkbox.addEventListener("change", function(){
+            task.completed = checkbox.checked;
+
+            if (task.completed){
+            taskElement.classList.add("completed");
+            }
+            else{
+                taskElement.classList.remove("completed");
+            }
+
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        });
+
+        
+
+        deleteButton.addEventListener("click", function() {
+
+            const userConfirm = confirm("Are you sure you would like to delete?");
+
+            if(!userConfirm){
+                return;
+            }
+
+            tasks = tasks.filter(function(item) {
+                return item.id !== task.id;
+            });
+
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            renderTasks();
+        });
 
         taskGroups[task.course].appendChild(taskElement);
+
 
     }
 
 }
 
+function formatDate(dateString) {
+
+    const date = new Date (dateString + "T00:00:00");
+
+    let format = {
+        month: "short",
+        day: "numeric",
+        /*year: "numeric"*/
+    };
+
+    return date.toLocaleDateString("en-CA", format);
+}
 
 
+function showTaskForm() {
+
+    mainContent.innerHTML = `
+        <h2>Add Task</h2>
+
+        <form id="task-form" novalidate>
+
+
+            <label>Course</label>
+            <input type="text" id="task-course">
+
+            <label>Due Date</label>
+            <input type="date" id="task-due-date">
+
+            <label>Task</label>
+            <input type="text" id="task-description">
+
+
+            <button type="submit">Add Task</button>
+
+        </form>
+    `;
+
+    const taskForm = document.getElementById("task-form");
+
+    taskForm.addEventListener("submit", function(event) {
+
+
+        event.preventDefault();
+
+        const course = document.getElementById("task-course").value.trim();
+        const dueDate = document.getElementById("task-due-date").value;
+        const description = document.getElementById("task-description").value.trim();
+
+        if (course === "" || dueDate === "" || description === ""){
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        const newTask = {
+
+            id: Date.now(),
+            course: course,
+            dueDate: dueDate,
+            description: description,
+            completed: false,
+        }
+
+        tasks.push(newTask);
+
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+
+        showDashboard();
+
+        });
+}
+
+
+
+
+        
 
 /* COURSES PAGE*/
 
