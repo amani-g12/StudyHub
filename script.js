@@ -41,7 +41,7 @@ function showDashboard() {
 
         <section class="tasks">
           <h3>Tasks</h3>
-          <button id="add-tasks-button">Add Task</button>
+          <button class="add-task-button" id="add-task-button">Add Task</button>
           <div class="tasks-list" id="task-list"></div>
         </section>
     
@@ -50,9 +50,9 @@ function showDashboard() {
     renderUpcomingAssignments();
     renderTasks();
 
-    const addTasksButton = document.getElementById("add-tasks-button");
+    const addTaskButton = document.getElementById("add-task-button");
 
-    addTasksButton.addEventListener("click", function() {
+    addTaskButton.addEventListener("click", function() {
         showTaskForm();
     });
 }
@@ -65,7 +65,7 @@ function showAssignments() {
 
     <h2>Assignments</h2>
 
-    <button id="add-assignment-button">Add Assignment</button>
+    <button class="add-assignment-button" id="add-assignment-button">Add Assignment</button>
 
     <div class="assignment-filters">
 
@@ -482,6 +482,7 @@ function showEditAssignmentForm(assignment) {
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
+
 function renderTasks() {
 
     const tasksList = document.getElementById("task-list");
@@ -494,32 +495,39 @@ function renderTasks() {
         return new Date(a.dueDate + "T00:00:00") - new Date(b.dueDate + "T00:00:00");
     });
 
+
+
     const taskGroups = {};
 
     for (const task of sortedTasks){
 
-        if (!taskGroups[task.course]) {
+
+        const dateGroup = getTaskDateGroup(task.dueDate);
+
+        if(!taskGroups[dateGroup]) {
 
             const taskGroup = document.createElement("div");
 
             taskGroup.classList.add("task-group");
 
             taskGroup.innerHTML = `
-                <h4>${task.course}</h4>
+                <h4>${dateGroup}</h4>
             `;
 
             tasksList.appendChild(taskGroup);
 
-            taskGroups[task.course] = taskGroup;
+            taskGroups[dateGroup] = taskGroup;
 
-        }
+            }
+
 
         const taskElement = document.createElement("div");
         taskElement.classList.add("task")
 
         taskElement.innerHTML = `
             <input type="checkbox">
-            <span>${task.description}</span>
+            <span class="task-description">${task.description}</span>
+            <span class="course">${task.course}</span>
             <span class="task-due-date">${formatDate(task.dueDate)}</span>
             <button class="delete-task">Delete</button>
         `;
@@ -566,12 +574,36 @@ function renderTasks() {
             renderTasks();
         });
 
-        taskGroups[task.course].appendChild(taskElement);
-
+        taskGroups[dateGroup].appendChild(taskElement);
 
     }
-
 }
+
+
+
+function getTaskDateGroup(dueDate) {
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
+
+    const taskDate = new Date(dueDate + "T00:00:00");
+
+
+    if (taskDate.getTime() === today.getTime()) {
+        return "Today";
+    }
+
+    
+    if (taskDate.getTime() === tomorrow.getTime()) {
+        return "Tomorrow";
+    }
+
+    return "Upcoming";
+}
+
 
 function formatDate(dateString) {
 
@@ -585,6 +617,8 @@ function formatDate(dateString) {
 
     return date.toLocaleDateString("en-CA", format);
 }
+
+
 
 
 function showTaskForm() {

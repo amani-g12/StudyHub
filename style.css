@@ -89,6 +89,19 @@ body {
     opacity: 0.5;
 }
 
+.add-assignment-button {
+    background-color: #fdfcfe;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.add-assignment-button:hover {
+    background-color: var(--accent);
+}
+
+
 .assignment-filters {
     display: flex;
     gap: 20px;
@@ -124,15 +137,64 @@ body {
 }
 
 .task-group h4 {
+    font-size: 18px;
     margin-top: 0;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
 .task {
-    display: flex;
+    display: grid;
+    grid-template-columns: 25px 1fr 120px 130px 70px;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
+    padding: 2px 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.task:hover {
+    background-color: #f7f2fa;
+}
+
+.task-description {
+    font-weight: 500;
+}
+
+.task-course {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.task-due-date {
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+.add-task-button {
+    background-color: #fdfcfe;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
     margin-bottom: 10px;
+}
+
+.add-task-button:hover {
+    background-color: var(--accent);
+}
+
+.delete-task {
+    border: none;
+    background-color: transparent;
+    color: var(--text-color);
+    font-weight: bold;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.delete-task:hover {
+    background-color: var(--accent);
 }
 
 .task input:checked + span{
