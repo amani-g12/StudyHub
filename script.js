@@ -2,6 +2,7 @@ const mainContent = document.getElementById("main-content");
 const dashboardLink = document.getElementById("dashboard-link");
 const coursesLink = document.getElementById("courses-link");
 const assignmentsLink = document.getElementById("assignments-link");
+const calendarLink = document.getElementById("calendar-link");
 
 
 
@@ -25,6 +26,12 @@ assignmentsLink.addEventListener("click", function(event){
     event.preventDefault();
     showAssignments();
 
+});
+
+calendarLink.addEventListener("click", function(event){
+
+    event.preventDefault();
+    showCalendar();
 });
 
 
@@ -56,7 +63,6 @@ function showDashboard() {
         showTaskForm();
     });
 }
-
 
 
 
@@ -126,6 +132,221 @@ function showAssignments() {
     renderAssignments();
 }
 
+
+function showCourses() {
+
+    mainContent.innerHTML = `
+    
+        <h2>Courses</h2>
+
+        <button class="add-course-button" id="add-course-button">Add Course</button>
+
+        <div class="course-list" id="course-list"></div>
+        
+    `;
+
+    const addCourseButton = document.getElementById("add-course-button");
+
+    addCourseButton.addEventListener("click", function() {
+        showCourseForm();
+    });
+
+    renderCourses();
+    
+}
+
+
+function showCalendar() {
+    mainContent.innerHTML = `
+        <h2>Calendar</h2>
+
+        <div class="calendar">
+            <div class="calendar-header">
+                <button id="previous-month">←</button>
+                <h3 id="calendar-month"></h3>
+                <button id="next-month">→</button>
+            </div>
+
+            <div class="calendar-weekdays">
+                <span>Sun</span>
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+            </div>
+
+            <div class="calendar-grid" id="calendar-grid"></div>
+        </div>
+    `;
+
+
+}
+
+
+
+
+/* COURSES PAGE*/
+
+
+let courses = JSON.parse(localStorage.getItem("courses")) || [];
+
+function renderCourses() {
+
+    const courseList = document.getElementById("course-list");
+
+    courseList.innerHTML = "";
+
+    for (const course of courses) {
+
+        const courseElement = document.createElement("div");
+
+        courseElement.classList.add("course-card");
+
+        courseElement.innerHTML = `
+            <h3>${course.code}</h3>
+            <p>${course.name}</p>
+            <button class="edit-course">Edit</button>
+            <button class="delete-course">Delete</button>
+        `;
+        const editButton = courseElement.querySelector(".edit-course");
+        const deleteButton = courseElement.querySelector(".delete-course");
+
+
+        editButton.addEventListener("click", function() {
+            showEditCourseForm(course);
+
+        });
+
+        deleteButton.addEventListener("click", function() {
+            const userConfirm = confirm(
+                "Are you sure you would like to delete? \n" +
+                "Deleting this course will not delete any assignments or tasks that belong to this course. \n" + 
+                "Continue?");
+
+            if(!userConfirm){
+                return;
+            }
+
+            courses = courses.filter(function(item) {
+                return item.id !== course.id;
+            });
+
+            localStorage.setItem("courses", JSON.stringify(courses));
+
+            showCourses();
+
+        });
+
+        
+
+        courseList.appendChild(courseElement);
+
+    }
+
+}
+
+
+function showCourseForm () {
+
+    
+    mainContent.innerHTML = `
+        <h2>Add Course</h2>
+
+        <form id="course-form" novalidate>
+
+
+            <label>Course Code</label>
+            <input type="text" id="course-code">
+
+            <label>Course Name</label>
+            <input type="text" id="course-name">
+
+
+            <button type="submit">Add Course</button>
+
+        </form>
+    `;
+
+    const courseForm = document.getElementById("course-form");
+
+    courseForm.addEventListener("submit", function(event) {
+
+
+        event.preventDefault();
+
+        const code = document.getElementById("course-code").value.trim();
+        const name = document.getElementById("course-name").value.trim();
+
+        if (code === "" || name === "") {
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        const newCourse = {
+
+            id: Date.now(),
+            code: code,
+            name: name,
+        }
+
+        courses.push(newCourse);
+
+        localStorage.setItem("courses", JSON.stringify(courses));
+
+        showCourses();
+
+        });
+
+}
+
+function showEditCourseForm (course) {
+
+    
+    mainContent.innerHTML = `
+        <h2>Edit Course</h2>
+
+        <form id="edit-course-form" novalidate>
+
+
+            <label>Course Code</label>
+            <input type="text" id="edit-course-code" value="${course.code}">
+
+            <label>Course Name</label>
+            <input type="text" id="edit-course-name" value="${course.name}">
+
+
+            <button type="submit">Save Changes</button>
+
+        </form>
+    `;
+
+    const editCourseForm = document.getElementById("edit-course-form");
+
+    editCourseForm.addEventListener("submit", function(event) {
+
+
+        event.preventDefault();
+
+        const code = document.getElementById("edit-course-code").value.trim();
+        const name = document.getElementById("edit-course-name").value.trim();
+
+        if (code === "" || name === "") {
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        course.code = code;
+        course.name = name;
+
+        localStorage.setItem("courses", JSON.stringify(courses));
+
+        showCourses();
+
+        });
+
+}
 
 
 /* ASSIGNMENTS */
@@ -344,7 +565,9 @@ function showAssignmentForm() {
             <input type="text" id="assignment-name">
 
             <label>Course</label>
-            <input type="text" id="assignment-course">
+            <select id="assignment-course">
+                <option value="">Select a course</option>
+            </select>
 
             <label>Due Date</label>
             <input type="date" id="assignment-due-date">
@@ -368,6 +591,18 @@ function showAssignmentForm() {
     `;
 
     const assignmentForm = document.getElementById("assignment-form");
+
+    const courseSelect = document.getElementById("assignment-course");
+
+    for (const course of courses) {
+
+        const option = document.createElement("option");
+
+        option.value = course.code;
+        option.textContent = `${course.code} - ${course.name}`;
+
+        courseSelect.appendChild(option);
+    }
 
     assignmentForm.addEventListener("submit", function(event) {
 
@@ -619,8 +854,6 @@ function formatDate(dateString) {
 }
 
 
-
-
 function showTaskForm() {
 
     mainContent.innerHTML = `
@@ -630,7 +863,9 @@ function showTaskForm() {
 
 
             <label>Course</label>
-            <input type="text" id="task-course">
+            <select id="task-course">
+                <option value="">Select a course</option>
+            </select>
 
             <label>Due Date</label>
             <input type="date" id="task-due-date">
@@ -645,6 +880,18 @@ function showTaskForm() {
     `;
 
     const taskForm = document.getElementById("task-form");
+
+    const courseSelect = document.getElementById("task-course");
+
+    for (const course of courses) {
+
+        const option = document.createElement("option");
+
+        option.value = course.code;
+        option.textContent = `${course.code} - ${course.name}`;
+
+        courseSelect.appendChild(option);
+    }
 
     taskForm.addEventListener("submit", function(event) {
 
@@ -677,77 +924,6 @@ function showTaskForm() {
 
         });
 }
-
-
-
-
-        
-
-/* COURSES PAGE*/
-
-const courses = [
-
-    {
-        id: 1,
-        code: "MAT 1341",
-        name: "Linear Algebra"
-    },
-
-    {
-        id: 2,
-        code: "CSI 2101",
-        name: "Computer Science"
-    },
-
-    {
-        id: 3,
-        code: "SEG 2105",
-        name: "Introduction to Software Engineering"
-    },
-
-    {
-        id: 4,
-        code: "CEG 2136",
-        name: "Computer Architecture I"
-    }
-
-]
-
-
-function showCourses() {
-
-    mainContent.innerHTML = `
-        <h2>Courses</h2>
-
-        <div class="course-list" id="course-list"></div>
-    `;
-
-    renderCourses();
-    
-}
-
-
-function renderCourses() {
-
-    const courseList = document.getElementById("course-list");
-
-    for (const course of courses) {
-
-    const courseElement = document.createElement("div");
-
-    courseElement.classList.add("course-card");
-
-    courseElement.innerHTML = `
-        <h3>${course.code}</h3>
-        <p>${course.name}</p>
-    `;
-
-    courseList.appendChild(courseElement);
-
-    }
-
-}
-
 
 
 showDashboard();

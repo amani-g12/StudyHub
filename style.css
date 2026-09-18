@@ -222,3 +222,15 @@ body {
 .course-card h3 {
     margin-top: 0;
 }
+
+.add-course-button {
+    background-color: #fdfcfe;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.add-course-button:hover {
+    background-color: var(--accent);
+}
