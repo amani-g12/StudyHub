@@ -3,6 +3,7 @@ const dashboardLink = document.getElementById("dashboard-link");
 const coursesLink = document.getElementById("courses-link");
 const assignmentsLink = document.getElementById("assignments-link");
 const calendarLink = document.getElementById("calendar-link");
+let currentCalendarDate = new Date();
 
 
 
@@ -10,22 +11,18 @@ dashboardLink.addEventListener("click", function(event){
 
     event.preventDefault();
     showDashboard();
-
 });
-
 
 coursesLink.addEventListener("click", function(event){
 
     event.preventDefault();
     showCourses();
-
 });
 
 assignmentsLink.addEventListener("click", function(event){
 
     event.preventDefault();
     showAssignments();
-
 });
 
 calendarLink.addEventListener("click", function(event){
@@ -33,6 +30,8 @@ calendarLink.addEventListener("click", function(event){
     event.preventDefault();
     showCalendar();
 });
+
+
 
 
 function showDashboard() {
@@ -63,8 +62,6 @@ function showDashboard() {
         showTaskForm();
     });
 }
-
-
 
 function showAssignments() {
     mainContent.innerHTML = `
@@ -132,7 +129,6 @@ function showAssignments() {
     renderAssignments();
 }
 
-
 function showCourses() {
 
     mainContent.innerHTML = `
@@ -154,7 +150,6 @@ function showCourses() {
     renderCourses();
     
 }
-
 
 function showCalendar() {
     mainContent.innerHTML = `
@@ -181,13 +176,25 @@ function showCalendar() {
         </div>
     `;
 
+    renderCalendar();
 
+    const previousMonthButton = document.getElementById("previous-month");
+    const nextMonthButton = document.getElementById("next-month");
+
+    previousMonthButton.addEventListener("click", function() {
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+        renderCalendar();
+    });
+
+    nextMonthButton.addEventListener("click", function(){
+        currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+        renderCalendar();
+    });
 }
 
 
 
-
-/* COURSES PAGE*/
+// COURSES PAGE 
 
 
 let courses = JSON.parse(localStorage.getItem("courses")) || [];
@@ -246,7 +253,6 @@ function renderCourses() {
     }
 
 }
-
 
 function showCourseForm () {
 
@@ -349,37 +355,12 @@ function showEditCourseForm (course) {
 }
 
 
-/* ASSIGNMENTS */
+// ASSIGNMENTS PAGE
 
 
 
 let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
 
-
-function populateCourseFilter() {
-
-    const courseFilter = document.getElementById("course-filter");
-
-    const uniqueCourses = [];
-
-    for (const assignment of assignments) {
-
-        if (!uniqueCourses.includes(assignment.course)) {
-            uniqueCourses.push(assignment.course);
-        }
-    }
-
-
-    for (const course of uniqueCourses) {
-        
-        const option = document.createElement("option");
-
-        option.value = course;
-        option.textContent = course;
-
-        courseFilter.appendChild(option);
-    }
-}
 
 function renderUpcomingAssignments() {
 
@@ -409,7 +390,7 @@ function renderUpcomingAssignments() {
 
     upcomingAssignments.sort(function(a,b) {
 
-        return new Date(a.dueDate + "T00:00:00") - new Date(b.dueDate + "T00:00:00");
+        return new Date(a.dueDate + "T" + a.dueTime) - new Date(b.dueDate + "T" + b.dueTime);
 
     });
 
@@ -425,7 +406,9 @@ function renderUpcomingAssignments() {
             <span class="course">${assignment.course}</span>
             <span class="assignment-name">${assignment.name}</span>
             <span class="weight">${assignment.weight}%</span>
-            <span class="due-date">${assignment.dueDate}</span>
+            <span class="due-date">
+                ${formatDate(assignment.dueDate)} - ${formatTime(assignment.dueTime)}
+            </span>
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
         `;
@@ -493,7 +476,9 @@ function renderAssignments(){
             <span class="course">${assignment.course}</span>
             <span class="assignment-name">${assignment.name}</span>
             <span class="weight">${assignment.weight}%</span>
-            <span class="due-date">${assignment.dueDate}</span>
+            <span class="due-date">
+                ${formatDate(assignment.dueDate)} - ${formatTime(assignment.dueTime)}
+            </span>
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
             <button class="delete-assignment">Delete</button>
@@ -554,7 +539,6 @@ function renderAssignments(){
 }
 
 
-
 function showAssignmentForm() {
     mainContent.innerHTML = `
         <h2>Add Assignment</h2>
@@ -571,6 +555,9 @@ function showAssignmentForm() {
 
             <label>Due Date</label>
             <input type="date" id="assignment-due-date">
+
+            <label>Due Time</label>
+            <input type="time" id="assignment-due-time">
 
             <label>Weight (%)</label>
             <input type="number" id="assignment-weight">
@@ -612,9 +599,13 @@ function showAssignmentForm() {
         const name = document.getElementById("assignment-name").value.trim();
         const course = document.getElementById("assignment-course").value.trim();
         const dueDate = document.getElementById("assignment-due-date").value;
+        const dueTime = document.getElementById("assignment-due-time").value;
         const weight = document.getElementById("assignment-weight").value;
         const priority = document.getElementById("assignment-priority").value;
         const notes = document.getElementById("assignment-notes").value.trim();
+
+        //If no due time is entered, assume midnight is due time
+        const finalDueTime = dueTime === "" ? "23:59" : dueTime;
 
         if (name === "" || course === "" || dueDate === "" || weight === ""){
             alert("Please fill in all of the required fields.");
@@ -627,6 +618,7 @@ function showAssignmentForm() {
             name: name,
             course: course,
             dueDate: dueDate,
+            dueTime: finalDueTime,
             weight: Number(weight),
             priority: priority,
             completed: false,
@@ -658,6 +650,9 @@ function showEditAssignmentForm(assignment) {
             <label>Due Date</label>
             <input type="date" id="edit-assignment-due-date" value="${assignment.dueDate}">
 
+            <label>Due Time</label>
+            <input type="time" id="edit-assignment-due-time" value="${assignment.dueTime}">
+
             <label>Weight (%)</label>
             <input type="number" id="edit-assignment-weight" value="${assignment.weight}">
 
@@ -686,9 +681,12 @@ function showEditAssignmentForm(assignment) {
         const name = document.getElementById("edit-assignment-name").value.trim();
         const course = document.getElementById("edit-assignment-course").value.trim();
         const dueDate = document.getElementById("edit-assignment-due-date").value;
+        const dueTime = document.getElementById("edit-assignment-due-time").value;
         const weight = document.getElementById("edit-assignment-weight").value;
         const priority = document.getElementById("edit-assignment-priority").value;
         const notes = document.getElementById("edit-assignment-notes").value.trim();
+
+        const finalDueTime = dueTime === "" ? "23:59" : dueTime;
 
         if (name === "" || course === "" || dueDate === "" || weight === ""){
             alert("Please fill in all of the required fields.");
@@ -698,6 +696,7 @@ function showEditAssignmentForm(assignment) {
         assignment.name = name;
         assignment.course = course;
         assignment.dueDate = dueDate;
+        assignment.dueTime = finalDueTime;
         assignment.weight = Number(weight);
         assignment.priority = priority;
         assignment.notes = notes;
@@ -711,8 +710,59 @@ function showEditAssignmentForm(assignment) {
 }
 
 
+function populateCourseFilter() {
 
-/* TASKS */
+    const courseFilter = document.getElementById("course-filter");
+
+    const uniqueCourses = [];
+
+    for (const assignment of assignments) {
+
+        if (!uniqueCourses.includes(assignment.course)) {
+            uniqueCourses.push(assignment.course);
+        }
+    }
+
+
+    for (const course of uniqueCourses) {
+        
+        const option = document.createElement("option");
+
+        option.value = course;
+        option.textContent = course;
+
+        courseFilter.appendChild(option);
+    }
+}
+
+
+function formatDate(dateString) {
+
+    const date = new Date (dateString + "T00:00:00");
+
+
+    return date.toLocaleDateString("en-CA", {
+        month: "short",
+        day: "numeric"
+    });
+}
+
+
+function formatTime(timeString) {
+    const [hours, minutes] = timeString.split(":");
+
+    const date = new Date();
+    date.setHours(hours, minutes);
+
+    return date.toLocaleTimeString("en-CA", {
+        hour: "numeric",
+        minute: "2-digit"
+    });
+}
+
+
+
+// TASKS
 
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
@@ -840,20 +890,6 @@ function getTaskDateGroup(dueDate) {
 }
 
 
-function formatDate(dateString) {
-
-    const date = new Date (dateString + "T00:00:00");
-
-    let format = {
-        month: "short",
-        day: "numeric",
-        /*year: "numeric"*/
-    };
-
-    return date.toLocaleDateString("en-CA", format);
-}
-
-
 function showTaskForm() {
 
     mainContent.innerHTML = `
@@ -923,6 +959,70 @@ function showTaskForm() {
         showDashboard();
 
         });
+}
+
+
+// CALENDAR 
+
+function renderCalendar() {
+
+    const calendarGrid = document.getElementById("calendar-grid");
+    const calendarMonth  = document.getElementById("calendar-month");
+
+    calendarGrid.innerHTML = "";
+
+    const year = currentCalendarDate.getFullYear();
+
+    //JS months are indexed from 0 to 11
+    const month = currentCalendarDate.getMonth(); 
+
+    const monthName = currentCalendarDate.toLocaleDateString("en-CA", {
+        month: "long",
+        year: "numeric"
+    });
+
+    calendarMonth.textContent = monthName;
+
+    const firstDay = new Date(year, month, 1).getDay();
+
+    const daysInMonth = new Date(year, month+1, 0).getDate();  /*the 0th day of October - JS interprets 
+    that as the day immediately before Oct 1s which is sept 30.*/
+
+
+    /*To add empty spaces before Day 1 of the month*/
+
+    for (let i = 0; i < firstDay; i++) {
+
+        const emptyDay = document.createElement("div");
+
+        emptyDay.classList.add("calendar-day", "empty");
+
+        calendarGrid.appendChild(emptyDay);
+    }
+
+
+    for (let day = 1; day <= daysInMonth; day++) {
+
+        const dayElement = document.createElement("div");
+
+        dayElement.classList.add("calendar-day");
+
+        dayElement.textContent = day;
+
+        const today = new Date();
+
+       if (
+            day === today.getDate() &&
+            month === today.getMonth() &&
+            year === today.getFullYear()
+       ) {
+            dayElement.classList.add("today");
+       }
+
+        calendarGrid.appendChild(dayElement);
+
+    }
+
 }
 
 

@@ -52,80 +52,6 @@ body {
 }
 
 
-/* ASSIGNMENT */
-
-.assignment-list {
-    display: grid;
-    gap: 12px;
-}
-
-.assignment {
-    display: grid;
-    grid-template-columns: 50px 150px 200px 150px 120px 100px 1fr;
-    align-items: center;
-
-    background-color: white;
-    padding: 18px 20px;
-    border-radius: 10px;
-
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    transition: transform 0.5s ease;
-}
-
-.assignment:hover {
-    transform: translateY(-2px);
-}
-
-.course {
-    font-weight: bold;
-}
-
-.due-date {
-    font-weight: bold;
-}
-
-.completed {
-    text-decoration: line-through;
-    opacity: 0.5;
-}
-
-.add-assignment-button {
-    background-color: #fdfcfe;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
-
-.add-assignment-button:hover {
-    background-color: var(--accent);
-}
-
-
-.assignment-filters {
-    display: flex;
-    gap: 20px;
-    margin: 20px 0;
-    padding: 15px;
-    background-color: white;
-    border-radius: 10px;
-}
-
-.assignment-filters label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-weight: bold;
-}
-
-.assignment-filters select {
-    padding: 6px 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-}
-
-
-
 
 /* TASKS */
 
@@ -233,4 +159,150 @@ body {
 
 .add-course-button:hover {
     background-color: var(--accent);
+}
+
+
+/* ASSIGNMENT */
+
+.assignment-list {
+    display: grid;
+    gap: 12px;
+}
+
+.assignment {
+    display: grid;
+    grid-template-columns: 50px 150px 150px 150px 120px 100px 100px 50px 1fr;
+    align-items: center;
+
+    background-color: white;
+    padding: 18px 20px;
+    border-radius: 10px;
+
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.5s ease;
+}
+
+.assignment:hover {
+    transform: translateY(-2px);
+}
+
+.course {
+    font-weight: bold;
+}
+
+.due-date {
+    font-weight: bold;
+}
+
+.due-time {
+    font-weight: bold;
+}
+
+.completed {
+    text-decoration: line-through;
+    opacity: 0.5;
+}
+
+.add-assignment-button {
+    background-color: #fdfcfe;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.add-assignment-button:hover {
+    background-color: var(--accent);
+}
+
+
+.assignment-filters {
+    display: flex;
+    gap: 20px;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.assignment-filters label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+}
+
+.assignment-filters select {
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+
+/* CALENDAR */
+
+.calendar {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.calendar-header h3 {
+    font-size: 25px;
+    margin: 0px;
+    padding: 0px;
+    
+}
+
+.calendar-header button {
+    border: none;
+    background-color: var(--accent);
+    color: var(--text-color);
+    font-size: 20px;
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.calendar-header button:hover {
+    background-color: var(--background-color);
+}
+
+.calendar-weekdays, .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+}
+
+.calendar-weekdays {
+    margin-bottom: 8px;
+}
+
+.calendar-weekdays span {
+    text-align: center;
+    font-weight: bold;
+}
+
+.calendar-day {
+    min-height: 90px;
+    padding: 10px;
+    border: 1px solid #eee;
+}
+
+.calendar-day.empty {
+    background-color: #fbf7fb;
+}
+
+.calendar-day.today {
+    font-weight: bold;
+    color: #a258bd;
+    border: 2px solid #a258bd;
 }
