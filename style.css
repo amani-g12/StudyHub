@@ -1,7 +1,7 @@
 :root{
     --background-color: rgb(212, 177, 228);
     --text-color: rgb(98, 36, 126);
-    --accent: rgb(216, 204, 230);
+    --accent: rgb(234, 224, 246);
 }
 
 *{
@@ -305,4 +305,28 @@ body {
     font-weight: bold;
     color: #a258bd;
     border: 2px solid #a258bd;
+}
+
+.calendar-exam {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+    padding: 6px;
+    background-color: var(--accent);
+    border-radius: 6px;
+    border: 2px solid  rgb(206, 186, 229);
+    font-size: 15px;
+}
+
+.calendar-exam strong {
+    font-size: 13px;
+}
+
+.calendar-exam span {
+    font-size: 13px;
+}
+
+.exam-weight {
+    font-weight: bold;
 }

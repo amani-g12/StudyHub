@@ -173,8 +173,16 @@ function showCalendar() {
             </div>
 
             <div class="calendar-grid" id="calendar-grid"></div>
+
+            <button class="add-exam-button" id="add-exam-button">Add Exam</button>
         </div>
     `;
+
+    const addExamButton = document.getElementById("add-exam-button");
+
+    addExamButton.addEventListener("click", function() {
+        showExamForm();
+    });
 
     renderCalendar();
 
@@ -195,7 +203,6 @@ function showCalendar() {
 
 
 // COURSES PAGE 
-
 
 let courses = JSON.parse(localStorage.getItem("courses")) || [];
 
@@ -355,9 +362,8 @@ function showEditCourseForm (course) {
 }
 
 
+
 // ASSIGNMENTS PAGE
-
-
 
 let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
 
@@ -764,7 +770,6 @@ function formatTime(timeString) {
 
 // TASKS
 
-
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
 
@@ -865,7 +870,6 @@ function renderTasks() {
 }
 
 
-
 function getTaskDateGroup(dueDate) {
 
     const today = new Date();
@@ -962,6 +966,8 @@ function showTaskForm() {
 }
 
 
+
+
 // CALENDAR 
 
 function renderCalendar() {
@@ -1019,6 +1025,32 @@ function renderCalendar() {
             dayElement.classList.add("today");
        }
 
+       //Check if the day we're creating has any exam scheduled for that date
+
+       const calendarDate = new Date(year, month, day).toLocaleDateString("en-CA"); //date being created 
+
+       const dayExams = exams.filter(function(exam) {
+            return exam.date === calendarDate;
+       });
+
+       for (const exam of dayExams) {
+        
+        const examElement = document.createElement("div");
+
+        examElement.classList.add("calendar-exam");
+
+        examElement.innerHTML = `
+        <strong>${exam.course}</strong>
+        <span>${exam.name}</span>
+        <span>${formatTime(exam.time)}</span>
+        <span class="exam-weight">${exam.weight}%</span>
+    `;
+
+        dayElement.appendChild(examElement);
+       }
+
+
+
         calendarGrid.appendChild(dayElement);
 
     }
@@ -1026,5 +1058,95 @@ function renderCalendar() {
 }
 
 
-showDashboard();
+// EXAMS
+
+let exams = JSON.parse(localStorage.getItem("exams")) || [];
+
+function showExamForm() {
+
+    mainContent.innerHTML = `
+        <h2>Add Exam</h2>
+
+        <form id="exam-form" novalidate>
+
+
+            <label>Course</label>
+            <select id="exam-course">
+                <option value="">Select a course</option>
+            </select>
+
+            <label>Name</label>
+            <input type="text" id="exam-name">
+
+            <label>Date</label>
+            <input type="date" id="exam-date">
+
+            <label>Time</label>
+            <input type="time" id="exam-time">
+
+            <label>Weight (%)</label>
+            <input type="number" id="exam-weight">
+
+            <label>Location</label>
+            <input type="text" id="exam-location">
+
+            <button type="submit">Add Exam</button>
+
+        </form>
+    `;
+
+
+    const examForm = document.getElementById("exam-form");
+
+    const courseSelect = document.getElementById("exam-course");
+
+    for (const course of courses) {
+
+        const option = document.createElement("option");
+
+        option.value = course.code;
+        option.textContent = `${course.code} - ${course.name}`;
+
+        courseSelect.appendChild(option);
+    }
+
+
+    examForm.addEventListener("submit", function(event) {
+
+        event.preventDefault();
+
+        const course = document.getElementById("exam-course").value.trim();
+        const name = document.getElementById("exam-name").value.trim();
+        const date = document.getElementById("exam-date").value;
+        const time = document.getElementById("exam-time").value;
+        const weight = document.getElementById("exam-weight").value;
+        const location = document.getElementById("exam-location").value.trim();
+
+        if (course === "" || name === "" || date === "" || weight === ""){
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        const newExam = {
+
+            id: Date.now(),
+            course: course,
+            name: name,
+            date: date,
+            weight: weight,
+            time: time,
+            location: location
+        }
+
+        exams.push(newExam);
+
+        localStorage.setItem("exams", JSON.stringify(exams));
+
+        showCalendar();
+
+        });
+}
+
+
+showDashboard();j
 
