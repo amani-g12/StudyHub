@@ -47,7 +47,7 @@ function showDashboard() {
 
         <section class="tasks">
           <h3>Tasks</h3>
-          <button class="add-task-button" id="add-task-button">Add Task</button>
+          <button class="add-task-button" id="add-task-button">+ Add Task</button>
           <div class="tasks-list" id="task-list"></div>
         </section>
     
@@ -221,8 +221,14 @@ function renderCourses() {
         courseElement.innerHTML = `
             <h3>${course.code}</h3>
             <p>${course.name}</p>
-            <button class="edit-course">Edit</button>
-            <button class="delete-course">Delete</button>
+
+            <button class="edit-course">
+                <img src="images/edit-icon.svg" alt="Edit">
+            </button>
+
+            <button class="delete-course">
+                <img src="images/delete-icon.svg" alt="Delete">
+            </button>
         `;
         const editButton = courseElement.querySelector(".edit-course");
         const deleteButton = courseElement.querySelector(".delete-course");
@@ -487,8 +493,15 @@ function renderAssignments(){
             </span>
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
-            <button class="delete-assignment">Delete</button>
-            <button class="edit-assignment">Edit</button>
+
+            <button class="delete-assignment">
+                <img src="images/delete-icon.svg" alt="Delete">
+            </button>
+
+            <button class="edit-assignment">
+                <img src="images/edit-icon.svg" alt="Edit">
+            </button>
+
         `;
 
         const checkbox = assignmentElement.querySelector("input");
@@ -578,7 +591,7 @@ function showAssignmentForm() {
             <label>Notes</label>
             <textarea id="assignment-notes"></textarea>
 
-            <button type="submit">Add Assignment</button>
+            <button type="submit" class="add-new-assignment-button">Add Assignment</button>
 
         </form>
     `;
@@ -672,7 +685,7 @@ function showEditAssignmentForm(assignment) {
             <label>Notes</label>
             <textarea id="edit-assignment-notes">${assignment.notes}</textarea>
 
-            <button type="submit">Save changes</button>
+            <button type="submit" class="save-assignment-button">Save changes</button>
 
         </form>
     `;
@@ -819,7 +832,9 @@ function renderTasks() {
             <span class="task-description">${task.description}</span>
             <span class="course">${task.course}</span>
             <span class="task-due-date">${formatDate(task.dueDate)}</span>
-            <button class="delete-task">Delete</button>
+            <button class="delete-task">
+                <img src="images/edit-icon.svg" alt="Edit">
+            </button>
         `;
 
         const checkbox = taskElement.querySelector("input");
@@ -914,7 +929,7 @@ function showTaskForm() {
             <input type="text" id="task-description">
 
 
-            <button type="submit">Add Task</button>
+            <button type="submit" class="add-new-task-button">Add Task</button>
 
         </form>
     `;
@@ -1040,16 +1055,18 @@ function renderCalendar() {
         examElement.classList.add("calendar-exam");
 
         examElement.innerHTML = `
-        <strong>${exam.course}</strong>
-        <span>${exam.name}</span>
-        <span>${formatTime(exam.time)}</span>
-        <span class="exam-weight">${exam.weight}%</span>
-    `;
+            <strong>${exam.course}</strong>
+            <span>${exam.name}</span>
+            <span class="exam-weight">${exam.weight}%</span>
+        `;
+
+        examElement.addEventListener("click", function() {
+            showExamDetails(exam);
+        });
+
 
         dayElement.appendChild(examElement);
        }
-
-
 
         calendarGrid.appendChild(dayElement);
 
@@ -1145,6 +1162,189 @@ function showExamForm() {
         showCalendar();
 
         });
+}
+
+
+function showEditExamForm(exam) {
+
+     mainContent.innerHTML = `
+        <h2>Edit Exam</h2>
+
+        <form id="edit-exam-form" novalidate>
+
+            <label>Course</label>
+            <select id="edit-exam-course">
+                <option value="">Select a course</option>
+            </select>
+
+            <label>Name</label>
+            <input type="text" id="edit-exam-name" value="${exam.name}">
+
+            <label>Date</label>
+            <input type="date" id="edit-exam-date" value="${exam.date}">
+
+            <label>Time</label>
+            <input type="time" id="edit-exam-time" value="${exam.time}">
+
+            <label>Weight (%)</label>
+            <input type="number" id="edit-exam-weight" value="${exam.weight}">
+
+            <label>Location</label>
+            <input type="text" id="edit-exam-location" value="${exam.location}">
+
+            <button type="submit" class="save-exam-button">Save changes</button>
+
+        </form>
+    `;
+
+    const editExamForm = document.getElementById("edit-exam-form");
+
+
+    const courseSelect = document.getElementById("edit-exam-course");
+
+    for (const course of courses) {
+        const option = document.createElement("option");
+
+        option.value = course.code;
+        option.textContent = `${course.code} - ${course.name}`;
+
+        courseSelect.appendChild(option);
+    }
+
+    courseSelect.value = exam.course;
+
+
+
+    editExamForm.addEventListener("submit", function(event) {
+
+
+        event.preventDefault();
+
+        const course = document.getElementById("edit-exam-course").value.trim();
+        const name = document.getElementById("edit-exam-name").value.trim();
+        const date = document.getElementById("edit-exam-date").value;
+        const time = document.getElementById("edit-exam-time").value;
+        const weight = document.getElementById("edit-exam-weight").value;
+        const location = document.getElementById("edit-exam-location").value.trim();
+
+
+
+        if (course === "" || name === "" || date === "" || weight === ""){
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        exam.name = name;
+        exam.course = course;
+        exam.date = date;
+        exam.time = time;
+        exam.weight = Number(weight);
+        exam.location = location;
+
+
+        localStorage.setItem("exams", JSON.stringify(exams));
+
+        showCalendar();
+
+    });
+}
+
+
+
+function showExamDetails (exam) {
+
+    const examDetails = document.createElement("div");
+
+    examDetails.classList.add("exam-modal");
+
+    examDetails.innerHTML = `
+        
+        <div class="exam-card">
+
+            <button class="close-exam-button" id="close-exam-button">x</button>
+    
+            <div class="exam-card-header">
+                <span class="exam-course">${exam.course}</span>
+                <h2>${exam.name}</h2>
+            </div>
+
+
+            <div class="exam-details">
+
+                <div class="exam-detail">
+                    <span class="detail-label">Date</span>
+                    <span>${formatDate(exam.date)}</span>
+                </div>
+
+                <div class="exam-detail">
+                    <span class="detail-label">Time</span>
+                    <span>${exam.time === "" ? "TBD" : formatTime(exam.time)}</span>
+                </div>
+
+                <div class="exam-detail">
+                    <span class="detail-label">Weight</span>
+                    <span>${exam.weight}%</span>
+                </div>
+
+                <div class="exam-detail">
+                    <span class="detail-label">Location</span>
+                    <span>${exam.location === "" ? "TBD" : exam.location}</span>
+                </div>
+
+            </div>
+
+
+            <div class="exam-actions">
+
+                <button class="edit-exam" id="edit-exam">
+                    <img src="images/edit-icon.svg" alt="Edit"
+                </button>
+
+                <button class="delete-exam" id="delete-exam">
+                    <img src="images/delete-icon.svg" alt="Delete"
+                </button>
+
+            </div>
+
+        </div>
+    `
+
+    document.body.appendChild(examDetails);
+
+    const closeButton = document.getElementById("close-exam-button");
+
+    closeButton.addEventListener("click", function() {
+        examDetails.remove();
+    });
+
+    const editButton = document.getElementById("edit-exam");
+    const deleteButton = document.getElementById("delete-exam");
+
+    editButton.addEventListener("click", function() {
+        examDetails.remove();
+        showEditExamForm(exam);
+    });
+
+
+    deleteButton.addEventListener("click", function() {
+        
+        const userConfirm = confirm("Are you sure you would like to delete?");
+
+        if(!userConfirm){
+            return;
+        }
+
+        exams = exams.filter(function(item) {
+            return item.id !== exam.id;
+        });
+
+        localStorage.setItem("exams", JSON.stringify(exams));
+
+        examDetails.remove();
+
+        renderCalendar();
+    })
+
 }
 
 

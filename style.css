@@ -53,6 +53,65 @@ body {
 
 
 
+/* Edit and Delete Buttons */
+
+.edit-course, 
+.delete-course, 
+.delete-assignment, 
+.edit-assignment,
+.delete-task,
+.edit-exam,
+.delete-exam {
+    border: none;
+    background: rgb(186, 144, 191);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+}
+
+.edit-course img, 
+.delete-course img, 
+.delete-assignment img, 
+.edit-assignment img,
+.delete-task img,
+.edit-exam img,
+.delete-exam img {
+    width: 20px;
+    height: 22px;
+}
+
+.edit-course:hover, 
+.delete-course:hover, 
+.delete-assignment:hover, 
+.edit-assignment:hover,
+.delete-task:hover,
+.edit-exam:hover,
+.delete-exam:hover {
+    background-color: rgba(141, 21, 141, 0.802);
+}
+
+
+
+
+/* Add Buttons */
+
+.add-exam-button,
+.add-assignment-button,
+.add-new-assignment-button,
+.save-assignment-button,
+.add-new-task-button {
+    background-color: white;
+    font-weight: bold;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    cursor: pointer;
+}
+
+
+
+
 /* TASKS */
 
 .task-group {
@@ -70,7 +129,8 @@ body {
 
 .task {
     display: grid;
-    grid-template-columns: 25px 1fr 120px 130px 70px;
+    grid-template-columns: 25px 1fr 120px 130px 50px;
+    column-gap: 10px;
     align-items: center;
     gap: 15px;
     padding: 2px 10px;
@@ -109,15 +169,8 @@ body {
     background-color: var(--accent);
 }
 
-.delete-task {
-    border: none;
-    background-color: transparent;
-    color: var(--text-color);
-    font-weight: bold;
-    cursor: pointer;
-    padding: 6px 8px;
-    border-radius: 6px;
-}
+
+
 
 .delete-task:hover {
     background-color: var(--accent);
@@ -162,6 +215,7 @@ body {
 }
 
 
+
 /* ASSIGNMENT */
 
 .assignment-list {
@@ -171,7 +225,8 @@ body {
 
 .assignment {
     display: grid;
-    grid-template-columns: 50px 150px 150px 150px 120px 100px 100px 50px 1fr;
+    grid-template-columns: 50px 150px 150px 120px 1fr 50px 100px 50px 50px; 
+    column-gap: 12px;
     align-items: center;
 
     background-color: white;
@@ -203,13 +258,7 @@ body {
     opacity: 0.5;
 }
 
-.add-assignment-button {
-    background-color: #fdfcfe;
-    font-weight: bold;
-    border-radius: 8px;
-    padding: 10px;
-    margin-bottom: 10px;
-}
+
 
 .add-assignment-button:hover {
     background-color: var(--accent);
@@ -307,6 +356,7 @@ body {
     border: 2px solid #a258bd;
 }
 
+
 .calendar-exam {
     display: flex;
     flex-direction: column;
@@ -317,6 +367,7 @@ body {
     border-radius: 6px;
     border: 2px solid  rgb(206, 186, 229);
     font-size: 15px;
+    cursor: pointer;
 }
 
 .calendar-exam strong {
@@ -330,3 +381,90 @@ body {
 .exam-weight {
     font-weight: bold;
 }
+
+
+.exam-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.exam-card {
+    position: relative;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 4px 15px;
+}
+
+.close-exam-button {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    border: none;
+    background-color: transparent;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 7px;
+    border-radius: 6px;
+}
+
+.close-exam-button:hover {
+    background-color: var(--accent);
+}
+
+.exam-card-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.exam-course {
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0.7;
+}
+
+.exam-card-header h2 {
+    margin: 5px 0 0;
+    font-size: 24px;
+}
+
+.exam-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom:20px;
+}
+
+.exam-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.exam-actions {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
