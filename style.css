@@ -59,6 +59,7 @@ body {
 .delete-course, 
 .delete-assignment, 
 .edit-assignment,
+.edit-task,
 .delete-task,
 .edit-exam,
 .delete-exam {
@@ -74,6 +75,7 @@ body {
 .delete-assignment img, 
 .edit-assignment img,
 .delete-task img,
+.edit-task img,
 .edit-exam img,
 .delete-exam img {
     width: 20px;
@@ -85,6 +87,7 @@ body {
 .delete-assignment:hover, 
 .edit-assignment:hover,
 .delete-task:hover,
+.edit-task:hover,
 .edit-exam:hover,
 .delete-exam:hover {
     background-color: rgba(141, 21, 141, 0.802);
@@ -95,11 +98,11 @@ body {
 
 /* Add Buttons */
 
-.add-exam-button,
 .add-assignment-button,
-.add-new-assignment-button,
 .save-assignment-button,
-.add-new-task-button {
+.add-new-task-button,
+.save-course-button,
+.save-exam-button {
     background-color: white;
     font-weight: bold;
     border-radius: 8px;
@@ -129,7 +132,7 @@ body {
 
 .task {
     display: grid;
-    grid-template-columns: 25px 1fr 120px 130px 50px;
+    grid-template-columns: 25px 1fr 120px 130px 50px 50px;
     column-gap: 10px;
     align-items: center;
     gap: 15px;

@@ -230,12 +230,13 @@ function renderCourses() {
                 <img src="images/delete-icon.svg" alt="Delete">
             </button>
         `;
+
         const editButton = courseElement.querySelector(".edit-course");
         const deleteButton = courseElement.querySelector(".delete-course");
 
 
         editButton.addEventListener("click", function() {
-            showEditCourseForm(course);
+            showCourseForm(course);
 
         });
 
@@ -267,23 +268,24 @@ function renderCourses() {
 
 }
 
-function showCourseForm () {
+function showCourseForm(courseToEdit = null) {
 
-    
     mainContent.innerHTML = `
-        <h2>Add Course</h2>
+        <h2>${courseToEdit ? "Edit Course" : "Add Course"}</h2>
 
         <form id="course-form" novalidate>
 
-
             <label>Course Code</label>
-            <input type="text" id="course-code">
+            <input type="text" id="course-code"
+                value="${courseToEdit ? courseToEdit.code : ""}">
 
             <label>Course Name</label>
-            <input type="text" id="course-name">
+            <input type="text" id="course-name"
+                value="${courseToEdit ? courseToEdit.name : ""}">
 
-
-            <button type="submit">Add Course</button>
+            <button type="submit" class="save-course-button">
+                ${courseToEdit ? "Save Changes" : "Add Course"}
+            </button>
 
         </form>
     `;
@@ -291,7 +293,6 @@ function showCourseForm () {
     const courseForm = document.getElementById("course-form");
 
     courseForm.addEventListener("submit", function(event) {
-
 
         event.preventDefault();
 
@@ -303,69 +304,30 @@ function showCourseForm () {
             return;
         }
 
-        const newCourse = {
+        if (courseToEdit) {
 
-            id: Date.now(),
-            code: code,
-            name: name,
+            courseToEdit.code = code;
+            courseToEdit.name = name;
+
+        } else {
+
+            const newCourse = {
+
+                id: Date.now(),
+                code: code,
+                name: name
+            }
+
+            courses.push(newCourse);
         }
-
-        courses.push(newCourse);
 
         localStorage.setItem("courses", JSON.stringify(courses));
 
         showCourses();
 
-        });
-
+    });
 }
 
-function showEditCourseForm (course) {
-
-    
-    mainContent.innerHTML = `
-        <h2>Edit Course</h2>
-
-        <form id="edit-course-form" novalidate>
-
-
-            <label>Course Code</label>
-            <input type="text" id="edit-course-code" value="${course.code}">
-
-            <label>Course Name</label>
-            <input type="text" id="edit-course-name" value="${course.name}">
-
-
-            <button type="submit">Save Changes</button>
-
-        </form>
-    `;
-
-    const editCourseForm = document.getElementById("edit-course-form");
-
-    editCourseForm.addEventListener("submit", function(event) {
-
-
-        event.preventDefault();
-
-        const code = document.getElementById("edit-course-code").value.trim();
-        const name = document.getElementById("edit-course-name").value.trim();
-
-        if (code === "" || name === "") {
-            alert("Please fill in all of the required fields.");
-            return;
-        }
-
-        course.code = code;
-        course.name = name;
-
-        localStorage.setItem("courses", JSON.stringify(courses));
-
-        showCourses();
-
-        });
-
-}
 
 
 
@@ -549,7 +511,7 @@ function renderAssignments(){
         
 
         editButton.addEventListener("click", function() {
-            showEditAssignmentForm(assignment);
+            showAssignmentForm(assignment);
         });
 
 
@@ -558,14 +520,15 @@ function renderAssignments(){
 }
 
 
-function showAssignmentForm() {
+function showAssignmentForm(assignmentToEdit = null) {
+
     mainContent.innerHTML = `
-        <h2>Add Assignment</h2>
+        <h2>${assignmentToEdit ? "Edit Assignment" : "Add Assignment"}</h2>
 
         <form id="assignment-form" novalidate>
 
             <label>Assignment Name</label>
-            <input type="text" id="assignment-name">
+            <input type="text" id="assignment-name" value="${assignmentToEdit ? assignmentToEdit.name : ""}">
 
             <label>Course</label>
             <select id="assignment-course">
@@ -573,13 +536,13 @@ function showAssignmentForm() {
             </select>
 
             <label>Due Date</label>
-            <input type="date" id="assignment-due-date">
+            <input type="date" id="assignment-due-date" value="${assignmentToEdit ? assignmentToEdit.dueDate : ""}">
 
             <label>Due Time</label>
-            <input type="time" id="assignment-due-time">
+            <input type="time" id="assignment-due-time" value="${assignmentToEdit ? assignmentToEdit.dueTime : ""}">
 
             <label>Weight (%)</label>
-            <input type="number" id="assignment-weight">
+            <input type="number" id="assignment-weight" value="${assignmentToEdit ? assignmentToEdit.weight : ""}">
 
             <label>Priority</label>
             <select id="assignment-priority">
@@ -589,14 +552,18 @@ function showAssignmentForm() {
             </select>
 
             <label>Notes</label>
-            <textarea id="assignment-notes"></textarea>
+            <textarea id="assignment-notes">${assignmentToEdit ? assignmentToEdit.notes : ""}</textarea>
 
-            <button type="submit" class="add-new-assignment-button">Add Assignment</button>
+            <button type="submit" class="save-assignment-button">
+                ${assignmentToEdit ? "Save changes" : "Add Assignment"}
+            </button>
 
         </form>
     `;
 
     const assignmentForm = document.getElementById("assignment-form");
+
+    const prioritySelect = document.getElementById("assignment-priority");
 
     const courseSelect = document.getElementById("assignment-course");
 
@@ -610,8 +577,13 @@ function showAssignmentForm() {
         courseSelect.appendChild(option);
     }
 
-    assignmentForm.addEventListener("submit", function(event) {
+    if(assignmentToEdit) {
+        courseSelect.value = assignmentToEdit.course;
+        prioritySelect.value = assignmentToEdit.priority;
+    }
 
+
+    assignmentForm.addEventListener("submit", function(event) {
 
         event.preventDefault();
 
@@ -623,7 +595,7 @@ function showAssignmentForm() {
         const priority = document.getElementById("assignment-priority").value;
         const notes = document.getElementById("assignment-notes").value.trim();
 
-        //If no due time is entered, assume midnight is due time
+        //If no due time is entered, assume 11:59 PM is due time
         const finalDueTime = dueTime === "" ? "23:59" : dueTime;
 
         if (name === "" || course === "" || dueDate === "" || weight === ""){
@@ -631,101 +603,37 @@ function showAssignmentForm() {
             return;
         }
 
-        const newAssignment = {
+        if(assignmentToEdit) {
+            assignmentToEdit.name = name;
+            assignmentToEdit.course = course;
+            assignmentToEdit.dueDate = dueDate;
+            assignmentToEdit.dueTime = finalDueTime;
+            assignmentToEdit.weight = Number(weight);
+            assignmentToEdit.priority = priority;
+            assignmentToEdit.notes = notes;
 
-            id: Date.now(),
-            name: name,
-            course: course,
-            dueDate: dueDate,
-            dueTime: finalDueTime,
-            weight: Number(weight),
-            priority: priority,
-            completed: false,
-            notes: notes
+        } else {
+
+            const newAssignment = {
+
+                id: Date.now(),
+                name: name,
+                course: course,
+                dueDate: dueDate,
+                dueTime: finalDueTime,
+                weight: Number(weight),
+                priority: priority,
+                completed: false,
+                notes: notes
+            }
+            assignments.push(newAssignment);
         }
-        assignments.push(newAssignment);
 
         localStorage.setItem("assignments", JSON.stringify(assignments));
 
         showAssignments();
 
         });
-}
-
-
-function showEditAssignmentForm(assignment) {
-
-     mainContent.innerHTML = `
-        <h2>Edit Assignment</h2>
-
-        <form id="edit-assignment-form" novalidate>
-
-            <label>Assignment Name</label>
-            <input type="text" id="edit-assignment-name" value="${assignment.name}">
-
-            <label>Course</label>
-            <input type="text" id="edit-assignment-course" value="${assignment.course}">
-
-            <label>Due Date</label>
-            <input type="date" id="edit-assignment-due-date" value="${assignment.dueDate}">
-
-            <label>Due Time</label>
-            <input type="time" id="edit-assignment-due-time" value="${assignment.dueTime}">
-
-            <label>Weight (%)</label>
-            <input type="number" id="edit-assignment-weight" value="${assignment.weight}">
-
-            <label>Priority</label>
-            <select id="edit-assignment-priority">
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-            </select>
-
-            <label>Notes</label>
-            <textarea id="edit-assignment-notes">${assignment.notes}</textarea>
-
-            <button type="submit" class="save-assignment-button">Save changes</button>
-
-        </form>
-    `;
-
-    const editAssignmentForm = document.getElementById("edit-assignment-form");
-
-    editAssignmentForm.addEventListener("submit", function(event) {
-
-
-        event.preventDefault();
-
-        const name = document.getElementById("edit-assignment-name").value.trim();
-        const course = document.getElementById("edit-assignment-course").value.trim();
-        const dueDate = document.getElementById("edit-assignment-due-date").value;
-        const dueTime = document.getElementById("edit-assignment-due-time").value;
-        const weight = document.getElementById("edit-assignment-weight").value;
-        const priority = document.getElementById("edit-assignment-priority").value;
-        const notes = document.getElementById("edit-assignment-notes").value.trim();
-
-        const finalDueTime = dueTime === "" ? "23:59" : dueTime;
-
-        if (name === "" || course === "" || dueDate === "" || weight === ""){
-            alert("Please fill in all of the required fields.");
-            return;
-        }
-
-        assignment.name = name;
-        assignment.course = course;
-        assignment.dueDate = dueDate;
-        assignment.dueTime = finalDueTime;
-        assignment.weight = Number(weight);
-        assignment.priority = priority;
-        assignment.notes = notes;
-
-
-        localStorage.setItem("assignments", JSON.stringify(assignments));
-
-        showAssignments();
-
-    });
 }
 
 
@@ -832,13 +740,18 @@ function renderTasks() {
             <span class="task-description">${task.description}</span>
             <span class="course">${task.course}</span>
             <span class="task-due-date">${formatDate(task.dueDate)}</span>
-            <button class="delete-task">
+            <button class="edit-task">
                 <img src="images/edit-icon.svg" alt="Edit">
+            </button>
+            <button class="delete-task">
+                <img src="images/delete-icon.svg" alt="Delete">
             </button>
         `;
 
         const checkbox = taskElement.querySelector("input");
+        const editButton = taskElement.querySelector(".edit-task");
         const deleteButton = taskElement.querySelector(".delete-task");
+
 
         checkbox.checked = task.completed;
 
@@ -860,7 +773,9 @@ function renderTasks() {
 
         });
 
-        
+        editButton.addEventListener("click", function() {
+            showTaskForm(task);
+        });
 
         deleteButton.addEventListener("click", function() {
 
@@ -909,13 +824,12 @@ function getTaskDateGroup(dueDate) {
 }
 
 
-function showTaskForm() {
+function showTaskForm(taskToEdit = null) {
 
     mainContent.innerHTML = `
-        <h2>Add Task</h2>
+        <h2>${taskToEdit ? "Edit Task" : "Add Task"}</h2>
 
         <form id="task-form" novalidate>
-
 
             <label>Course</label>
             <select id="task-course">
@@ -923,13 +837,16 @@ function showTaskForm() {
             </select>
 
             <label>Due Date</label>
-            <input type="date" id="task-due-date">
+            <input type="date" id="task-due-date"
+                value="${taskToEdit ? taskToEdit.dueDate : ""}">
 
             <label>Task</label>
-            <input type="text" id="task-description">
+            <input type="text" id="task-description"
+                value="${taskToEdit ? taskToEdit.description : ""}">
 
-
-            <button type="submit" class="add-new-task-button">Add Task</button>
+            <button type="submit" class="add-new-task-button">
+                ${taskToEdit ? "Save Changes" : "Add Task"}
+            </button>
 
         </form>
     `;
@@ -948,8 +865,12 @@ function showTaskForm() {
         courseSelect.appendChild(option);
     }
 
-    taskForm.addEventListener("submit", function(event) {
+    if (taskToEdit) {
+        courseSelect.value = taskToEdit.course;
+    }
 
+
+    taskForm.addEventListener("submit", function(event) {
 
         event.preventDefault();
 
@@ -962,24 +883,32 @@ function showTaskForm() {
             return;
         }
 
-        const newTask = {
+        if (taskToEdit) {
 
-            id: Date.now(),
-            course: course,
-            dueDate: dueDate,
-            description: description,
-            completed: false,
+            taskToEdit.course = course;
+            taskToEdit.dueDate = dueDate;
+            taskToEdit.description = description;
+
+        } else {
+
+            const newTask = {
+
+                id: Date.now(),
+                course: course,
+                dueDate: dueDate,
+                description: description,
+                completed: false
+            }
+
+            tasks.push(newTask);
         }
-
-        tasks.push(newTask);
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
 
         showDashboard();
 
-        });
+    });
 }
-
 
 
 
@@ -1079,10 +1008,11 @@ function renderCalendar() {
 
 let exams = JSON.parse(localStorage.getItem("exams")) || [];
 
-function showExamForm() {
+function showExamForm(examToEdit = null) { /*optional parameter, when we do send in something, the form 
+    knows we're editing an already existing exam, otherwise, we add a new exam */
 
     mainContent.innerHTML = `
-        <h2>Add Exam</h2>
+        <h2>${examToEdit ? "Edit Exam" : "Add Exam"}</h2>
 
         <form id="exam-form" novalidate>
 
@@ -1093,21 +1023,23 @@ function showExamForm() {
             </select>
 
             <label>Name</label>
-            <input type="text" id="exam-name">
+            <input type="text" id="exam-name" value="${examToEdit ? examToEdit.name : ""}">
 
             <label>Date</label>
-            <input type="date" id="exam-date">
+            <input type="date" id="exam-date" value="${examToEdit ? examToEdit.date : ""}">
 
             <label>Time</label>
-            <input type="time" id="exam-time">
+            <input type="time" id="exam-time" value="${examToEdit ? examToEdit.time : ""}">
 
             <label>Weight (%)</label>
-            <input type="number" id="exam-weight">
+            <input type="number" id="exam-weight" value="${examToEdit ? examToEdit.weight : ""}">
 
             <label>Location</label>
-            <input type="text" id="exam-location">
+            <input type="text" id="exam-location" value="${examToEdit ? examToEdit.location : ""}">
 
-            <button type="submit">Add Exam</button>
+            <button type="submit" class="save-exam-button">
+                ${examToEdit ? "Save changes" : "Add Exam"}
+            </button>
 
         </form>
     `;
@@ -1127,6 +1059,10 @@ function showExamForm() {
         courseSelect.appendChild(option);
     }
 
+    if (examToEdit) {
+        courseSelect.value = examToEdit.course;
+    }
+
 
     examForm.addEventListener("submit", function(event) {
 
@@ -1144,18 +1080,28 @@ function showExamForm() {
             return;
         }
 
-        const newExam = {
+        if (examToEdit) {
+            examToEdit.name = name;
+            examToEdit.course = course;
+            examToEdit.date = date;
+            examToEdit.time = time;
+            examToEdit.weight = Number(weight);
+            examToEdit.location = location;     
 
-            id: Date.now(),
-            course: course,
-            name: name,
-            date: date,
-            weight: weight,
-            time: time,
-            location: location
+        } else {
+
+            const newExam = {
+
+                id: Date.now(),
+                course: course,
+                name: name,
+                date: date,
+                weight: Number(weight),
+                time: time,
+                location: location
+            }
+            exams.push(newExam);
         }
-
-        exams.push(newExam);
 
         localStorage.setItem("exams", JSON.stringify(exams));
 
@@ -1163,92 +1109,6 @@ function showExamForm() {
 
         });
 }
-
-
-function showEditExamForm(exam) {
-
-     mainContent.innerHTML = `
-        <h2>Edit Exam</h2>
-
-        <form id="edit-exam-form" novalidate>
-
-            <label>Course</label>
-            <select id="edit-exam-course">
-                <option value="">Select a course</option>
-            </select>
-
-            <label>Name</label>
-            <input type="text" id="edit-exam-name" value="${exam.name}">
-
-            <label>Date</label>
-            <input type="date" id="edit-exam-date" value="${exam.date}">
-
-            <label>Time</label>
-            <input type="time" id="edit-exam-time" value="${exam.time}">
-
-            <label>Weight (%)</label>
-            <input type="number" id="edit-exam-weight" value="${exam.weight}">
-
-            <label>Location</label>
-            <input type="text" id="edit-exam-location" value="${exam.location}">
-
-            <button type="submit" class="save-exam-button">Save changes</button>
-
-        </form>
-    `;
-
-    const editExamForm = document.getElementById("edit-exam-form");
-
-
-    const courseSelect = document.getElementById("edit-exam-course");
-
-    for (const course of courses) {
-        const option = document.createElement("option");
-
-        option.value = course.code;
-        option.textContent = `${course.code} - ${course.name}`;
-
-        courseSelect.appendChild(option);
-    }
-
-    courseSelect.value = exam.course;
-
-
-
-    editExamForm.addEventListener("submit", function(event) {
-
-
-        event.preventDefault();
-
-        const course = document.getElementById("edit-exam-course").value.trim();
-        const name = document.getElementById("edit-exam-name").value.trim();
-        const date = document.getElementById("edit-exam-date").value;
-        const time = document.getElementById("edit-exam-time").value;
-        const weight = document.getElementById("edit-exam-weight").value;
-        const location = document.getElementById("edit-exam-location").value.trim();
-
-
-
-        if (course === "" || name === "" || date === "" || weight === ""){
-            alert("Please fill in all of the required fields.");
-            return;
-        }
-
-        exam.name = name;
-        exam.course = course;
-        exam.date = date;
-        exam.time = time;
-        exam.weight = Number(weight);
-        exam.location = location;
-
-
-        localStorage.setItem("exams", JSON.stringify(exams));
-
-        showCalendar();
-
-    });
-}
-
 
 
 function showExamDetails (exam) {
@@ -1322,7 +1182,7 @@ function showExamDetails (exam) {
 
     editButton.addEventListener("click", function() {
         examDetails.remove();
-        showEditExamForm(exam);
+        showExamForm(exam);
     });
 
 
