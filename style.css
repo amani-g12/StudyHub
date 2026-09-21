@@ -102,6 +102,7 @@ body {
 .save-assignment-button,
 .add-new-task-button,
 .save-course-button,
+.add-exam-button,
 .save-exam-button {
     background-color: white;
     font-weight: bold;
@@ -228,7 +229,7 @@ body {
 
 .assignment {
     display: grid;
-    grid-template-columns: 50px 150px 150px 120px 1fr 50px 100px 50px 50px; 
+    grid-template-columns: 50px 170px 1fr 120px 1fr 50px  50px 50px; 
     column-gap: 12px;
     align-items: center;
 
@@ -254,6 +255,18 @@ body {
 
 .due-time {
     font-weight: bold;
+}
+
+.priority-field {
+    display: none;
+}
+
+.priority {
+    display: none;
+}
+
+.priority-filter {
+    display: none;
 }
 
 .completed {
@@ -366,9 +379,8 @@ body {
     gap: 2px;
     margin-top: 8px;
     padding: 6px;
-    background-color: var(--accent);
+    background-color: rgb(219, 191, 228);
     border-radius: 6px;
-    border: 2px solid  rgb(206, 186, 229);
     font-size: 15px;
     cursor: pointer;
 }
@@ -385,6 +397,29 @@ body {
     font-weight: bold;
 }
 
+.calendar-assignment {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 8px;
+    margin-bottom: 4px;
+    padding: 6px;
+    background-color: #f7f2fa;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.calendar-assignment strong {
+    font-size: 13px;
+}
+
+.calendar-assignment span {
+    font-size: 11px;
+}
+
+
+/* Exam Modal */
 
 .exam-modal {
     position: fixed;
@@ -470,4 +505,103 @@ body {
     padding-top: 15px;
     border-top: 1px solid #eee;
 }
+
+
+/* Assignment Modal */
+
+.assignment-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.assignment-card {
+    position: relative;
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    width: 400px;
+    box-shadow: 0 4px 15px;
+}
+
+.assignment-card-header {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+}
+
+.assignment-course {
+    font-size: 15px;
+    font-weight: bold;
+    opacity: 0.7;
+}
+
+.assignment-card-header h2 {
+    margin: 5px 0 0;
+    font-size: 24px;
+}
+
+.assignment-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.assignment-detail {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.detail-label {
+    font-size: 13px;
+    font-weight: bold;
+    text-transform: uppercase;
+    opacity: 0.6;
+}
+
+.assignment-notes {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.assignment-notes p {
+    margin-top: 5px;
+    margin-bottom: 0;    
+}
+
+.assignment-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 25px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+}
+
+.close-assignment-button {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    border: none;
+    background-color: transparent;
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 7px;
+    border-radius: 6px;
+}
+
+.close-assignment-button:hover {
+    background-color: var(--accent);
+}
+
 

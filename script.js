@@ -5,6 +5,10 @@ const assignmentsLink = document.getElementById("assignments-link");
 const calendarLink = document.getElementById("calendar-link");
 let currentCalendarDate = new Date();
 
+let selectedCourseFilter = "All";
+let selectedStatusFilter = "All";
+let selectedPriorityFilter = "All";
+
 
 
 dashboardLink.addEventListener("click", function(event){
@@ -94,13 +98,15 @@ function showAssignments() {
 
         <label>
 
-            Priority:
-            <select id="priority-filter">
-                <option value="All">All</option>
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-            </select>
+            <div class="priority-filter">
+                Priority:
+                <select id="priority-filter">
+                    <option value="All">All</option>
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
 
         </label>
 
@@ -122,9 +128,25 @@ function showAssignments() {
     const statusFilter = document.getElementById("status-filter");
     const priorityFilter = document.getElementById("priority-filter");
 
-    courseFilter.addEventListener("change", renderAssignments);
-    statusFilter.addEventListener("change", renderAssignments);
-    priorityFilter.addEventListener("change", renderAssignments);
+    courseFilter.value = selectedCourseFilter;
+    statusFilter.value = selectedStatusFilter;
+    priorityFilter.value = selectedPriorityFilter;
+
+
+    courseFilter.addEventListener("change", function() {
+        selectedCourseFilter = courseFilter.value;
+        renderAssignments();
+    });
+
+    statusFilter.addEventListener("change", function() {
+        selectedStatusFilter = statusFilter.value;
+        renderAssignments();
+    });
+
+    priorityFilter.addEventListener("change", function() {
+        selectedPriorityFilter = priorityFilter.value;
+        renderAssignments();
+    });
 
     renderAssignments();
 }
@@ -436,6 +458,10 @@ function renderAssignments(){
 
     });
 
+    filteredAssignments.sort(function(a,b) {
+        return new Date(a.dueDate + "T00:00:00") - new Date(b.dueDate + "T00:00:00");
+    })
+
 
 
     for (const assignment of filteredAssignments) {
@@ -544,8 +570,8 @@ function showAssignmentForm(assignmentToEdit = null) {
             <label>Weight (%)</label>
             <input type="number" id="assignment-weight" value="${assignmentToEdit ? assignmentToEdit.weight : ""}">
 
-            <label>Priority</label>
-            <select id="assignment-priority">
+            <label class="priority-field">Priority</label>
+            <select class="priority-field" id="assignment-priority">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
@@ -977,6 +1003,12 @@ function renderCalendar() {
             return exam.date === calendarDate;
        });
 
+       const dayAssignments = assignments.filter(function(assignment) {
+            return assignment.dueDate === calendarDate;
+       });
+
+
+
        for (const exam of dayExams) {
         
         const examElement = document.createElement("div");
@@ -997,9 +1029,135 @@ function renderCalendar() {
         dayElement.appendChild(examElement);
        }
 
-        calendarGrid.appendChild(dayElement);
+       
+       for (const assignment of dayAssignments) {
+        
+        const assignmentElement = document.createElement("div");
 
+        assignmentElement.classList.add("calendar-assignment");
+
+        assignmentElement.innerHTML = `
+            <strong>${assignment.course}</strong>
+            <span>${assignment.name}</span>
+        `;
+
+        assignmentElement.addEventListener("click", function() {
+            console.log("assingment clicked", assignment);
+            showAssignmentDetails(assignment);
+        });
+
+
+        dayElement.appendChild(assignmentElement);
+       }
+
+
+        calendarGrid.appendChild(dayElement);
     }
+}
+
+function showAssignmentDetails (assignment) {
+
+    console.log("show assignment details started");
+
+    const assignmentDetails = document.createElement("div");
+
+    assignmentDetails.classList.add("assignment-modal");
+
+
+    assignmentDetails.innerHTML = `
+        
+        <div class="assignment-card">
+
+            <button class="close-assignment-button" id="close-assignment-button">x</button>
+    
+            <div class="assignment-card-header">
+                <span class="assignment-course">${assignment.course}</span>
+                <h2>${assignment.name}</h2>
+            </div>
+
+
+            <div class="assignment-details">
+
+                <div class="assignment-detail">
+                    <span class="detail-label">Due Date</span>
+                    <span>${formatDate(assignment.dueDate)}</span>
+                </div>
+
+                <div class="assignment-detail">
+                    <span class="detail-label">Due Time</span>
+                    <span>${formatTime(assignment.dueTime)}</span>
+                </div>
+
+                <div class="assignment-detail">
+                    <span class="detail-label">Weight</span>
+                    <span>${assignment.weight}%</span>
+                </div>
+
+                <div class="assignment-detail">
+                    <span class="detail-label">Status</span>
+                    <span>${assignment.completed ? "Completed" : "Incomplete"}</span>
+                </div>
+
+            </div>
+
+            <div class="assignment-notes">
+                <span class="detail-label">Notes</span>
+                <p>${assignment.notes || "No notes"}</p>
+            </div>
+
+
+            <div class="assignment-actions">
+
+                <button class="edit-assignment" id="edit-assignment">
+                    <img src="images/edit-icon.svg" alt="Edit">
+                </button>
+
+                <button class="delete-assignment" id="delete-assignment">
+                    <img src="images/delete-icon.svg" alt="Delete">
+                </button>
+
+            </div>
+
+        </div>
+    `
+
+    document.body.appendChild(assignmentDetails);
+
+    console.log("Modal added to page");
+
+    const closeButton = document.getElementById("close-assignment-button");
+
+    closeButton.addEventListener("click", function() {
+        assignmentDetails.remove();
+    });
+
+    const editButton = document.getElementById("edit-assignment");
+    const deleteButton = document.getElementById("delete-assignment");
+
+    editButton.addEventListener("click", function() {
+        assignmentDetails.remove();
+        showAssignmentForm(assignment);
+    });
+
+
+    deleteButton.addEventListener("click", function() {
+        
+        const userConfirm = confirm("Are you sure you would like to delete?");
+
+        if(!userConfirm){
+            return;
+        }
+
+        assignments = assignments.filter(function(item) {
+            return item.id !== assignment.id;
+        });
+
+        localStorage.setItem("assignments", JSON.stringify(assignments));
+
+        assignmentDetails.remove();
+
+        renderCalendar();
+    })
 
 }
 
@@ -1157,11 +1315,11 @@ function showExamDetails (exam) {
             <div class="exam-actions">
 
                 <button class="edit-exam" id="edit-exam">
-                    <img src="images/edit-icon.svg" alt="Edit"
+                    <img src="images/edit-icon.svg" alt="Edit">
                 </button>
 
                 <button class="delete-exam" id="delete-exam">
-                    <img src="images/delete-icon.svg" alt="Delete"
+                    <img src="images/delete-icon.svg" alt="Delete">
                 </button>
 
             </div>
@@ -1208,5 +1366,5 @@ function showExamDetails (exam) {
 }
 
 
-showDashboard();j
+showDashboard();
 
