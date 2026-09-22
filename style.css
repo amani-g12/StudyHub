@@ -1,5 +1,5 @@
 :root{
-    --background-color: rgb(212, 177, 228);
+    --background-color: rgb(219, 200, 227);
     --text-color: rgb(98, 36, 126);
     --accent: rgb(234, 224, 246);
 }
@@ -202,6 +202,13 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
+.course-color {
+    width: 40px;
+    height: 8px;
+    border-radius: 4px;
+    margin-bottom: 12px;
+}
+
 .course-card h3 {
     margin-top: 0;
 }
@@ -272,6 +279,14 @@ body {
 .completed {
     text-decoration: line-through;
     opacity: 0.5;
+}
+
+.course-color-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
 }
 
 
@@ -379,14 +394,16 @@ body {
     gap: 2px;
     margin-top: 8px;
     padding: 6px;
-    background-color: rgb(219, 191, 228);
+    background-color: color-mix(in srgb, var(--course-color), white 45%);
     border-radius: 6px;
+    border-style: double;
+    border: 3px solid var(--course-color);
     font-size: 15px;
     cursor: pointer;
 }
 
 .calendar-exam strong {
-    font-size: 13px;
+    font-size: 15px;
 }
 
 .calendar-exam span {
@@ -404,7 +421,7 @@ body {
     margin-top: 8px;
     margin-bottom: 4px;
     padding: 6px;
-    background-color: #f7f2fa;
+    background-color: color-mix(in srgb, var(--course-color), white 70%);
     border-radius: 6px;
     font-size: 12px;
     cursor: pointer;
@@ -417,6 +434,8 @@ body {
 .calendar-assignment span {
     font-size: 11px;
 }
+
+
 
 
 /* Exam Modal */

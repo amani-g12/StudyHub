@@ -3,11 +3,27 @@ const dashboardLink = document.getElementById("dashboard-link");
 const coursesLink = document.getElementById("courses-link");
 const assignmentsLink = document.getElementById("assignments-link");
 const calendarLink = document.getElementById("calendar-link");
+const courseColours = [
+    "#daea7c",
+    "#8ae2cc",
+    "#f5ad72",
+    "#51c9e7",
+    "#a0eb90",
+    "#ea88be"
+]
+
+
+let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
+let courses = JSON.parse(localStorage.getItem("courses")) || [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+let exams = JSON.parse(localStorage.getItem("exams")) || [];
+
 let currentCalendarDate = new Date();
 
 let selectedCourseFilter = "All";
 let selectedStatusFilter = "All";
 let selectedPriorityFilter = "All";
+
 
 
 
@@ -44,7 +60,7 @@ function showDashboard() {
         <h2>Dashboard</h2>
 
         <section class="upcoming">
-          <h3>Upcoming</h3>
+          <h3>Upcoming Assignments</h3>
 
           <div class="assignment-list" id="assignment-list"></div>
         </section>
@@ -226,7 +242,7 @@ function showCalendar() {
 
 // COURSES PAGE 
 
-let courses = JSON.parse(localStorage.getItem("courses")) || [];
+
 
 function renderCourses() {
 
@@ -241,6 +257,7 @@ function renderCourses() {
         courseElement.classList.add("course-card");
 
         courseElement.innerHTML = `
+            <div class="course-color" style="background-color: ${course.color};"></div>
             <h3>${course.code}</h3>
             <p>${course.name}</p>
 
@@ -305,6 +322,10 @@ function showCourseForm(courseToEdit = null) {
             <input type="text" id="course-name"
                 value="${courseToEdit ? courseToEdit.name : ""}">
 
+            <label>Course Colour</label>
+            <input type="color" id="course-color"
+                value="${courseToEdit ? courseToEdit.color : getCourseColor()}">
+
             <button type="submit" class="save-course-button">
                 ${courseToEdit ? "Save Changes" : "Add Course"}
             </button>
@@ -320,6 +341,7 @@ function showCourseForm(courseToEdit = null) {
 
         const code = document.getElementById("course-code").value.trim();
         const name = document.getElementById("course-name").value.trim();
+        const color = document.getElementById("course-color").value;
 
         if (code === "" || name === "") {
             alert("Please fill in all of the required fields.");
@@ -330,6 +352,7 @@ function showCourseForm(courseToEdit = null) {
 
             courseToEdit.code = code;
             courseToEdit.name = name;
+            courseToEdit.color = color;
 
         } else {
 
@@ -337,8 +360,10 @@ function showCourseForm(courseToEdit = null) {
 
                 id: Date.now(),
                 code: code,
-                name: name
+                name: name,
+                color: color
             }
+            console.log("New course: ", newCourse);
 
             courses.push(newCourse);
         }
@@ -351,11 +376,24 @@ function showCourseForm(courseToEdit = null) {
 }
 
 
+function getCourseColor () {
+    const usedColours = courses.map(function(course) {
+        return course.color;
+    });
+
+    for (const color of courseColours) {
+        if (!usedColours.includes(color)) {
+            return color;
+        }
+    }
+
+    return courseColours[courses.length % courseColours.length];
+}
+
+
 
 
 // ASSIGNMENTS PAGE
-
-let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
 
 
 function renderUpcomingAssignments() {
@@ -393,13 +431,22 @@ function renderUpcomingAssignments() {
 
     for (const assignment of upcomingAssignments) {
 
+        const course = courses.find(function(courseItem) {
+            return courseItem.code === assignment.course;
+         });
+
+        const courseColor = course ? course.color : "#ccc";
+
         const assignmentElement = document.createElement("div");
 
         assignmentElement.classList.add("assignment");
 
         assignmentElement.innerHTML = `
             <input type="checkbox">
-            <span class="course">${assignment.course}</span>
+            <span class="course">
+                <span class="course-color-dot" style="background-color: ${courseColor};"></span>
+                ${assignment.course}
+            </span>
             <span class="assignment-name">${assignment.name}</span>
             <span class="weight">${assignment.weight}%</span>
             <span class="due-date">
@@ -466,6 +513,14 @@ function renderAssignments(){
 
     for (const assignment of filteredAssignments) {
 
+        //.find() goes through the courses array and returns the first object that matches.
+        //This gives access to the course object which contains the color information
+        const course = courses.find(function(courseItem) {
+            return courseItem.code === assignment.course;
+         });
+
+        const courseColor = course ? course.color : "#ccc";
+
         const assignmentElement = document.createElement("div");
 
         assignmentElement.classList.add("assignment");
@@ -473,7 +528,12 @@ function renderAssignments(){
 
         assignmentElement.innerHTML = `
             <input type="checkbox">
-            <span class="course">${assignment.course}</span>
+
+            <span class="course">
+                <span class="course-color-dot" style="background-color: ${courseColor};"></span>
+                ${assignment.course}
+            </span>
+
             <span class="assignment-name">${assignment.name}</span>
             <span class="weight">${assignment.weight}%</span>
             <span class="due-date">
@@ -482,12 +542,12 @@ function renderAssignments(){
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
 
-            <button class="delete-assignment">
-                <img src="images/delete-icon.svg" alt="Delete">
-            </button>
-
             <button class="edit-assignment">
                 <img src="images/edit-icon.svg" alt="Edit">
+            </button>
+
+            <button class="delete-assignment">
+                <img src="images/delete-icon.svg" alt="Delete">
             </button>
 
         `;
@@ -717,8 +777,6 @@ function formatTime(timeString) {
 
 // TASKS
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
 
 function renderTasks() {
 
@@ -757,6 +815,12 @@ function renderTasks() {
 
             }
 
+        const course = courses.find(function(courseItem) {
+            return courseItem.code === task.course;
+         });
+
+        const courseColor = course ? course.color : "#ccc";
+
 
         const taskElement = document.createElement("div");
         taskElement.classList.add("task")
@@ -764,7 +828,12 @@ function renderTasks() {
         taskElement.innerHTML = `
             <input type="checkbox">
             <span class="task-description">${task.description}</span>
-            <span class="course">${task.course}</span>
+
+            <span class="course">
+                <span class="course-color-dot" style="background-color: ${courseColor};"></span>
+                ${task.course}
+            </span>
+
             <span class="task-due-date">${formatDate(task.dueDate)}</span>
             <button class="edit-task">
                 <img src="images/edit-icon.svg" alt="Edit">
@@ -835,6 +904,10 @@ function getTaskDateGroup(dueDate) {
     tomorrow.setDate(today.getDate() + 1);
 
     const taskDate = new Date(dueDate + "T00:00:00");
+
+    if(taskDate < today){
+        return "Overdue";
+    }
 
 
     if (taskDate.getTime() === today.getTime()) {
@@ -1010,10 +1083,18 @@ function renderCalendar() {
 
 
        for (const exam of dayExams) {
+
+        const course = courses.find(function(courseItem) {
+            return courseItem.code === exam.course;
+        });
+
+        const courseColor = course ? course.color : "#ccc";
         
         const examElement = document.createElement("div");
 
         examElement.classList.add("calendar-exam");
+
+        examElement.style.setProperty("--course-color", courseColor);
 
         examElement.innerHTML = `
             <strong>${exam.course}</strong>
@@ -1031,10 +1112,17 @@ function renderCalendar() {
 
        
        for (const assignment of dayAssignments) {
+
+        const course = courses.find(function(courseItem) {
+            return courseItem.code === assignment.course;
+        });
+
+        const courseColor = course ? course.color : "#ccc";
         
         const assignmentElement = document.createElement("div");
-
         assignmentElement.classList.add("calendar-assignment");
+
+        assignmentElement.style.setProperty("--course-color", courseColor);
 
         assignmentElement.innerHTML = `
             <strong>${assignment.course}</strong>
@@ -1042,7 +1130,6 @@ function renderCalendar() {
         `;
 
         assignmentElement.addEventListener("click", function() {
-            console.log("assingment clicked", assignment);
             showAssignmentDetails(assignment);
         });
 
@@ -1054,6 +1141,7 @@ function renderCalendar() {
         calendarGrid.appendChild(dayElement);
     }
 }
+
 
 function showAssignmentDetails (assignment) {
 
@@ -1163,8 +1251,6 @@ function showAssignmentDetails (assignment) {
 
 
 // EXAMS
-
-let exams = JSON.parse(localStorage.getItem("exams")) || [];
 
 function showExamForm(examToEdit = null) { /*optional parameter, when we do send in something, the form 
     knows we're editing an already existing exam, otherwise, we add a new exam */
