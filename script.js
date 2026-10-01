@@ -3,6 +3,8 @@ const dashboardLink = document.getElementById("dashboard-link");
 const coursesLink = document.getElementById("courses-link");
 const assignmentsLink = document.getElementById("assignments-link");
 const calendarLink = document.getElementById("calendar-link");
+
+//Default course colours in case the user is not interested in manually assigning colours.
 const courseColours = [
     "#daea7c",
     "#8ae2cc",
@@ -127,6 +129,16 @@ function showAssignments() {
         </label>
 
     </div>
+
+
+        <div class="assignment-header">
+            <span class="empty-column"></span> 
+            <span>Course</span>
+            <span>Assignment</span>
+            <span>Weight</span>
+            <span>Due-Date</span>
+            <span>Grade</span>
+        </div>
 
     <div class="assignment-list" id="assignment-list"></div>
     `;
@@ -270,6 +282,10 @@ function renderCourses() {
             </button>
         `;
 
+        courseElement.addEventListener("click", function() {
+            showCourseDetails(course);
+        })
+
         const editButton = courseElement.querySelector(".edit-course");
         const deleteButton = courseElement.querySelector(".delete-course");
 
@@ -306,6 +322,97 @@ function renderCourses() {
     }
 
 }
+
+function showCourseDetails(course) {
+
+    mainContent.innerHTML = `
+    
+
+        <button class="back-to-courses" id="back-to-courses">←</button>
+
+        <h2>${course.code} - ${course.name}</h2>
+
+        <section>
+
+            <h3>Grade Summary</h3>
+
+            <div class="grade-summary-grid">
+
+                <div class="grade-stat current-grade-stat">
+                    <span class="grade-stat-value" id="current-grade">-</span>
+                    <span class="grade-stat-label">Grade so far</span>
+                </div>
+
+                <div class="grade-stat">
+                    <span class="grade-stat-value" id="marks-earned">-</span>
+                    <span class="grade-stat-label">Marks earned</span>
+                </div>
+
+                <div class="grade-stat">
+                    <span class="grade-stat-value" id="marks-remaining">-</span>
+                    <span class="grade-stat-label">Course weight remaining</span>
+                </div>
+
+
+            </div>
+
+
+            <div class="grade-progress">
+
+                <div class="grade-progress-label">
+                    <span>Course Progress</span>
+                    <span id="graded-progress">-</span>
+                </div>
+
+            </div>
+
+            
+            <div class="grade-progress-fill">
+
+                <div class="grade-progress-fill-label">
+                    <div id="graded-progress-fill">-</div>
+                </div>
+
+            </div>
+
+            
+
+        </section>
+
+        <section class="course-assignments">
+
+            <h3>Assignments & Exams</h3>
+
+            <div class="course-grade-header">
+                <span>Name</span>
+                <span>Grade</span>
+                <span>Weight</span>
+            </div>
+
+            <div id="course-assignment-list"></div>
+
+        </section>
+
+        <section class="extra-marks">
+
+            <h3>Extra Marks</h3>
+
+            <div id="extra-marks-list"></div>
+
+            <button class="add-extra-mark" id="add-extra-mark">Add Extra Mark</button>
+
+        </section>
+    `;
+
+    const backButton = document.getElementById("back-to-courses");
+
+    backButton.addEventListener("click", function() {
+        showCourses();
+    });
+
+    renderCourseGrades(course);
+}
+
 
 function showCourseForm(courseToEdit = null) {
 
@@ -373,6 +480,132 @@ function showCourseForm(courseToEdit = null) {
         showCourses();
 
     });
+}
+
+function getCourseGradeData (course) {
+
+    const courseAssignments = assignments.filter(function(assignment) {
+        return assignment.course === course;
+    });
+
+    const courseExams = exams.filter(function(exam) {
+        return exam.course === course;
+    });
+
+    console.log("Assignments:", courseAssignments);
+    console.log("Exams:", courseExams);
+
+    let marksEarned = 0;
+    let marksGraded = 0;
+
+    for (const assignment of courseAssignments) {
+
+        if(assignment.gradeEarned != null) {
+            marksEarned += assignment.weight * (assignment.gradeEarned/100);
+            marksGraded += assignment.weight;
+        }
+    }
+
+    for (const exam of courseExams) {
+
+        if(exam.gradeEarned != null) {
+            marksEarned += exam.weight * (exam.gradeEarned/100);
+            marksGraded += exam.weight;
+        }
+    }
+
+    const marksRemaining = 100 - marksGraded;
+
+    const gradeSoFar = marksGraded > 0 ? (marksEarned/marksGraded *100) : null;
+
+    return {
+        marksEarned: marksEarned,
+        marksGraded: marksGraded,
+        marksRemaining: marksRemaining,
+        gradeSoFar: gradeSoFar
+    };
+
+}
+
+function renderCourseGrades(course) {
+
+    const gradeData = getCourseGradeData(course.code)
+
+    const currentGrade = document.getElementById("current-grade");
+    const marksEarned = document.getElementById("marks-earned");
+    const marksRemaining = document.getElementById("marks-remaining");
+
+    if (gradeData.gradeSoFar === null) {
+        currentGrade.textContent = "-";
+    } else {
+        currentGrade.textContent = `${gradeData.gradeSoFar.toFixed(1)}%`;
+    }
+
+    marksEarned.textContent = `${gradeData.marksEarned.toFixed(1)} / ${gradeData.marksGraded}%`;
+
+    marksRemaining.textContent = `${gradeData.marksRemaining}%`;
+
+
+    const gradedProgress = document.getElementById("graded-progress");
+    const gradedProgressFill = document.getElementById("graded-progress-fill");
+
+    gradedProgress.textContent = `${gradeData.marksGraded}% graded`;
+    gradedProgressFill.style.width = `${gradeData.marksGraded}%`;
+
+    gradedProgressFill.style.backgroundColor = course.color;
+    gradedProgressFill.style.color = course.color;
+
+    document.documentElement.style.setProperty('--course-color', course.color);
+
+
+    // Render assignments and exams
+
+    const assignmentList = document.getElementById("course-assignment-list");
+
+    assignmentList.innerHTML = "";
+
+    const courseAssignments = assignments.filter(function(assignment) {
+        return assignment.course === course.code;
+    });
+
+    const courseExams = exams.filter(function(exam) {
+        return exam.course === course.code;
+    });
+
+
+
+     for (const assignment of courseAssignments) {
+
+        const assignmentElement = document.createElement("div");
+
+        assignmentElement.classList.add("course-grade-item");
+
+        assignmentElement.innerHTML = `
+            <span>${assignment.name}</span>
+            <span>${assignment.gradeEarned != null ? assignment.gradeEarned + "%" : "-"}</span>
+            <span>${assignment.weight}%</span>
+        `;
+
+        assignmentList.appendChild(assignmentElement);
+    }
+
+
+
+    for (const exam of courseExams) {
+
+        const examElement = document.createElement("div");
+
+        examElement.classList.add("course-grade-item");
+
+        examElement.innerHTML = `
+            <span>${exam.name}</span>
+            <span>${exam.gradeEarned != null ? exam.gradeEarned + "%" : "-"}</span>
+            <span>${exam.weight}%</span>
+        `;
+
+        assignmentList.appendChild(examElement);
+    }
+
 }
 
 
@@ -527,6 +760,7 @@ function renderAssignments(){
 
 
         assignmentElement.innerHTML = `
+
             <input type="checkbox">
 
             <span class="course">
@@ -536,9 +770,15 @@ function renderAssignments(){
 
             <span class="assignment-name">${assignment.name}</span>
             <span class="weight">${assignment.weight}%</span>
+
             <span class="due-date">
                 ${formatDate(assignment.dueDate)} - ${formatTime(assignment.dueTime)}
             </span>
+
+            <span class="grade-earned">
+                ${assignment.gradeEarned != null ? assignment.gradeEarned + "%" : "-"}
+            </span>
+
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
 
@@ -630,6 +870,9 @@ function showAssignmentForm(assignmentToEdit = null) {
             <label>Weight (%)</label>
             <input type="number" id="assignment-weight" value="${assignmentToEdit ? assignmentToEdit.weight : ""}">
 
+            <label>Grade Earned (%)</label>
+            <input type="number" id="assignment-grade-earned" value="${assignmentToEdit ? assignmentToEdit.gradeEarned : ""}">
+
             <label class="priority-field">Priority</label>
             <select class="priority-field" id="assignment-priority">
                 <option value="Low">Low</option>
@@ -678,6 +921,7 @@ function showAssignmentForm(assignmentToEdit = null) {
         const dueDate = document.getElementById("assignment-due-date").value;
         const dueTime = document.getElementById("assignment-due-time").value;
         const weight = document.getElementById("assignment-weight").value;
+        const gradeEarned = document.getElementById("assignment-grade-earned").value;
         const priority = document.getElementById("assignment-priority").value;
         const notes = document.getElementById("assignment-notes").value.trim();
 
@@ -689,12 +933,18 @@ function showAssignmentForm(assignmentToEdit = null) {
             return;
         }
 
+        if (gradeEarned !== "" && (Number(gradeEarned) < 0 || Number(gradeEarned) > 100)){
+            alert("Grade must be between 0 and 100.");
+            return;
+        }
+
         if(assignmentToEdit) {
             assignmentToEdit.name = name;
             assignmentToEdit.course = course;
             assignmentToEdit.dueDate = dueDate;
             assignmentToEdit.dueTime = finalDueTime;
             assignmentToEdit.weight = Number(weight);
+            assignmentToEdit.gradeEarned = gradeEarned === "" ? null : Number(gradeEarned);
             assignmentToEdit.priority = priority;
             assignmentToEdit.notes = notes;
 
@@ -708,6 +958,7 @@ function showAssignmentForm(assignmentToEdit = null) {
                 dueDate: dueDate,
                 dueTime: finalDueTime,
                 weight: Number(weight),
+                gradeEarned: gradeEarned === "" ? null : Number(gradeEarned),
                 priority: priority,
                 completed: false,
                 notes: notes
@@ -1145,8 +1396,6 @@ function renderCalendar() {
 
 function showAssignmentDetails (assignment) {
 
-    console.log("show assignment details started");
-
     const assignmentDetails = document.createElement("div");
 
     assignmentDetails.classList.add("assignment-modal");
@@ -1186,6 +1435,11 @@ function showAssignmentDetails (assignment) {
                     <span>${assignment.completed ? "Completed" : "Incomplete"}</span>
                 </div>
 
+                <div class="assignment-detail">
+                    <span class="detail-label">Grade Earned</span>
+                    <span>${assignment.gradeEarned != null ? assignment.gradeEarned + "%" : "-"}</span>
+                </div>
+
             </div>
 
             <div class="assignment-notes">
@@ -1210,8 +1464,6 @@ function showAssignmentDetails (assignment) {
     `
 
     document.body.appendChild(assignmentDetails);
-
-    console.log("Modal added to page");
 
     const closeButton = document.getElementById("close-assignment-button");
 
@@ -1278,6 +1530,9 @@ function showExamForm(examToEdit = null) { /*optional parameter, when we do send
             <label>Weight (%)</label>
             <input type="number" id="exam-weight" value="${examToEdit ? examToEdit.weight : ""}">
 
+            <label>Grade Earned (%)</label>
+            <input type="number" id="exam-grade-earned" value="${examToEdit ? examToEdit.gradeEarned : ""}">
+
             <label>Location</label>
             <input type="text" id="exam-location" value="${examToEdit ? examToEdit.location : ""}">
 
@@ -1317,10 +1572,16 @@ function showExamForm(examToEdit = null) { /*optional parameter, when we do send
         const date = document.getElementById("exam-date").value;
         const time = document.getElementById("exam-time").value;
         const weight = document.getElementById("exam-weight").value;
+        const gradeEarned = document.getElementById("exam-grade-earned").value;
         const location = document.getElementById("exam-location").value.trim();
 
         if (course === "" || name === "" || date === "" || weight === ""){
             alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        if (gradeEarned !== "" && (Number(gradeEarned) < 0 || Number(gradeEarned) > 100)){
+            alert("Grade must be between 0 and 100.");
             return;
         }
 
@@ -1330,6 +1591,7 @@ function showExamForm(examToEdit = null) { /*optional parameter, when we do send
             examToEdit.date = date;
             examToEdit.time = time;
             examToEdit.weight = Number(weight);
+            examToEdit.gradeEarned = gradeEarned === "" ? null : Number(gradeEarned);
             examToEdit.location = location;     
 
         } else {
@@ -1341,6 +1603,7 @@ function showExamForm(examToEdit = null) { /*optional parameter, when we do send
                 name: name,
                 date: date,
                 weight: Number(weight),
+                gradeEarned: gradeEarned === "" ? null : Number(gradeEarned),
                 time: time,
                 location: location
             }
@@ -1394,6 +1657,12 @@ function showExamDetails (exam) {
                     <span class="detail-label">Location</span>
                     <span>${exam.location === "" ? "TBD" : exam.location}</span>
                 </div>
+
+                <div class="exam-detail">
+                    <span class="detail-label">Grade Earned</span>
+                    <span>${exam.gradeEarned != null ? exam.gradeEarned + "%" : "-"}</span>
+                </div>
+            
 
             </div>
 
@@ -1453,4 +1722,3 @@ function showExamDetails (exam) {
 
 
 showDashboard();
-
