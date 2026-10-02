@@ -20,11 +20,15 @@ let courses = JSON.parse(localStorage.getItem("courses")) || [];
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 let exams = JSON.parse(localStorage.getItem("exams")) || [];
 
+let extraMarks = JSON.parse(localStorage.getItem("extraMarks")) || [];
+
+
 let currentCalendarDate = new Date();
 
 let selectedCourseFilter = "All";
 let selectedStatusFilter = "All";
 let selectedPriorityFilter = "All";
+
 
 
 
@@ -90,7 +94,7 @@ function showAssignments() {
 
     <h2>Assignments</h2>
 
-    <button class="add-assignment-button" id="add-assignment-button">Add Assignment</button>
+    <button class="add-assignment-button" id="add-assignment-button">+ Add Assignment</button>
 
     <div class="assignment-filters">
 
@@ -185,7 +189,7 @@ function showCourses() {
     
         <h2>Courses</h2>
 
-        <button class="add-course-button" id="add-course-button">Add Course</button>
+        <button class="add-course-button" id="add-course-button">+ Add Course</button>
 
         <div class="course-list" id="course-list"></div>
         
@@ -224,7 +228,7 @@ function showCalendar() {
 
             <div class="calendar-grid" id="calendar-grid"></div>
 
-            <button class="add-exam-button" id="add-exam-button">Add Exam</button>
+            <button class="add-exam-button" id="add-exam-button">+ Add Exam</button>
         </div>
     `;
 
@@ -290,12 +294,15 @@ function renderCourses() {
         const deleteButton = courseElement.querySelector(".delete-course");
 
 
-        editButton.addEventListener("click", function() {
+        editButton.addEventListener("click", function(event) {
+            event.stopPropagation();
+
             showCourseForm(course);
 
         });
 
-        deleteButton.addEventListener("click", function() {
+        deleteButton.addEventListener("click", function(event) {
+            event.stopPropagation();
             const userConfirm = confirm(
                 "Are you sure you would like to delete? \n" +
                 "Deleting this course will not delete any assignments or tasks that belong to this course. \n" + 
@@ -327,82 +334,88 @@ function showCourseDetails(course) {
 
     mainContent.innerHTML = `
     
-
-        <button class="back-to-courses" id="back-to-courses">←</button>
-
-        <h2>${course.code} - ${course.name}</h2>
-
-        <section>
-
-            <h3>Grade Summary</h3>
-
-            <div class="grade-summary-grid">
-
-                <div class="grade-stat current-grade-stat">
-                    <span class="grade-stat-value" id="current-grade">-</span>
-                    <span class="grade-stat-label">Grade so far</span>
-                </div>
-
-                <div class="grade-stat">
-                    <span class="grade-stat-value" id="marks-earned">-</span>
-                    <span class="grade-stat-label">Marks earned</span>
-                </div>
-
-                <div class="grade-stat">
-                    <span class="grade-stat-value" id="marks-remaining">-</span>
-                    <span class="grade-stat-label">Course weight remaining</span>
-                </div>
-
-
+        <div class="course-page">
+    
+            <button class="back-to-courses" id="back-to-courses">←</button>
+    
+            <div class="course-header">
+                <span class="course-header-code">${course.code}</span>
+                <h2>${course.name}</h2>
             </div>
-
-
-            <div class="grade-progress">
-
-                <div class="grade-progress-label">
-                    <span>Course Progress</span>
-                    <span id="graded-progress">-</span>
+    
+            <section>
+    
+                <h3>Grade Summary</h3>
+    
+                <div class="grade-summary-grid">
+    
+                    <div class="grade-stat current-grade-stat">
+                        <span class="grade-stat-value" id="current-grade">-</span>
+                        <span class="grade-stat-label">Grade so far</span>
+                    </div>
+    
+                    <div class="grade-stat">
+                        <span class="grade-stat-value" id="marks-earned">-</span>
+                        <span class="grade-stat-label">Marks earned</span>
+                    </div>
+    
+                    <div class="grade-stat">
+                        <span class="grade-stat-value" id="marks-remaining">-</span>
+                        <span class="grade-stat-label">Course weight remaining</span>
+                    </div>
+    
+    
                 </div>
-
-            </div>
-
-            
-            <div class="grade-progress-fill">
-
-                <div class="grade-progress-fill-label">
-                    <div id="graded-progress-fill">-</div>
+    
+    
+                <div class="grade-progress">
+    
+                    <div class="grade-progress-label">
+                        <span>Course Progress</span>
+                        <span id="graded-progress">-</span>
+                    </div>
+    
+    
+                    <div class="grade-progress-fill">
+                        <div id="graded-progress-fill"></div>
+                    </div>
+    
                 </div>
+    
+    
+    
+            </section>
+    
+            <section class="course-assignments">
+    
+                <h3>Assignments & Exams</h3>
+    
+                <div class="course-grade-header">
+                    <span>Name</span>
+                    <span>Grade</span>
+                    <span>Weight</span>
+                </div>
+    
+                <div id="course-assignment-list"></div>
+    
+            </section>
+    
+            <section class="extra-marks">
+    
+                <h3>Extra Marks (%)</h3>
+    
+                <div id="extra-marks-list" class="extra-marks-list"></div>
 
-            </div>
+                <div id="total-extra-marks"></div>
+    
+                <button class="add-extra-mark" id="add-extra-mark">+ Add Extra Mark</button>
+    
+            </section>
 
-            
-
-        </section>
-
-        <section class="course-assignments">
-
-            <h3>Assignments & Exams</h3>
-
-            <div class="course-grade-header">
-                <span>Name</span>
-                <span>Grade</span>
-                <span>Weight</span>
-            </div>
-
-            <div id="course-assignment-list"></div>
-
-        </section>
-
-        <section class="extra-marks">
-
-            <h3>Extra Marks</h3>
-
-            <div id="extra-marks-list"></div>
-
-            <button class="add-extra-mark" id="add-extra-mark">Add Extra Mark</button>
-
-        </section>
+        </div>
     `;
+
+    mainContent.style.setProperty("--course-color", course.color);
 
     const backButton = document.getElementById("back-to-courses");
 
@@ -410,7 +423,14 @@ function showCourseDetails(course) {
         showCourses();
     });
 
+    const addExtraMarkButton = document.getElementById("add-extra-mark");
+
+    addExtraMarkButton.addEventListener("click", function() {
+        showExtraMarkForm(course);
+    })
+
     renderCourseGrades(course);
+    renderExtraMarks(course);
 }
 
 
@@ -470,7 +490,6 @@ function showCourseForm(courseToEdit = null) {
                 name: name,
                 color: color
             }
-            console.log("New course: ", newCourse);
 
             courses.push(newCourse);
         }
@@ -481,6 +500,75 @@ function showCourseForm(courseToEdit = null) {
 
     });
 }
+
+function showExtraMarkForm(course) {
+
+    mainContent.innerHTML = `
+
+        <button class="back-to-course" id="back-to-course">←</button>
+
+        <h2>Add Extra Mark</h2>
+
+        <form id="extra-mark-form">
+
+            <label>Name</label>
+            <input type="text" id="extra-mark-name">
+
+            <label>Extra Marks (%)</label>
+            <input type="number" id="extra-mark-value">
+
+            <button type="submit" class="save-extra-mark-button">
+                Add Extra Mark
+            </button>
+
+        </form>
+
+    `
+
+    const backButton = document.getElementById("back-to-course");
+
+    backButton.addEventListener("click", function() {
+        showCourseDetails(course);
+    });
+
+    const extraMarkForm = document.getElementById("extra-mark-form");
+
+    extraMarkForm.addEventListener("submit", function(event) {
+        
+        event.preventDefault();
+
+        const name = document.getElementById("extra-mark-name").value.trim();
+        const value = document.getElementById("extra-mark-value").value;
+
+        if (name === "" || value === "") {
+            alert("Please fill in all of the required fields.");
+            return;
+        }
+
+        if (Number(value) <= 0) {
+            alert("Extra marks must be greater than 0.");
+            return;
+        }
+
+        const newExtraMark = {
+            id: Date.now(),
+            course: course.code,
+            name: name,
+            value: Number(value),
+        };
+
+
+        extraMarks.push(newExtraMark);
+
+        localStorage.setItem("extraMarks", JSON.stringify(extraMarks));
+
+        console.log(extraMarks);
+
+        showCourseDetails(course);
+
+    });
+}
+
 
 function getCourseGradeData (course) {
 
@@ -519,29 +607,48 @@ function getCourseGradeData (course) {
     const gradeSoFar = marksGraded > 0 ? (marksEarned/marksGraded *100) : null;
 
     return {
-        marksEarned: marksEarned,
-        marksGraded: marksGraded,
-        marksRemaining: marksRemaining,
-        gradeSoFar: gradeSoFar
+        marksEarned: Number(marksEarned.toFixed(2)),
+        marksGraded: Number(marksGraded.toFixed(2)),
+        marksRemaining: Number(marksRemaining.toFixed(2)),
+        gradeSoFar: gradeSoFar === null ? null : Number(gradeSoFar.toFixed(2))
     };
 
 }
+
 
 function renderCourseGrades(course) {
 
     const gradeData = getCourseGradeData(course.code)
 
+
+    const courseExtraMarks = extraMarks.filter(function(extraMark) {
+        return extraMark.course === course.code;
+    });
+
+    let totalExtraMarks = 0;
+
+    for (const extraMark of courseExtraMarks) {
+        totalExtraMarks += extraMark.value;
+    }
+
+    
+    const adjustedGrade = gradeData.gradeSoFar === null ? null : gradeData.gradeSoFar + totalExtraMarks;
+
+    const adjustedMarksEarned = gradeData.marksEarned + totalExtraMarks;
+
+
     const currentGrade = document.getElementById("current-grade");
     const marksEarned = document.getElementById("marks-earned");
     const marksRemaining = document.getElementById("marks-remaining");
 
-    if (gradeData.gradeSoFar === null) {
+
+    if (adjustedGrade === null) {
         currentGrade.textContent = "-";
     } else {
-        currentGrade.textContent = `${gradeData.gradeSoFar.toFixed(1)}%`;
+        currentGrade.textContent = `${adjustedGrade.toFixed(1)}%`;
     }
 
-    marksEarned.textContent = `${gradeData.marksEarned.toFixed(1)} / ${gradeData.marksGraded}%`;
+    marksEarned.textContent = `${adjustedMarksEarned.toFixed(1)} / ${gradeData.marksGraded}%`;
 
     marksRemaining.textContent = `${gradeData.marksRemaining}%`;
 
@@ -552,10 +659,7 @@ function renderCourseGrades(course) {
     gradedProgress.textContent = `${gradeData.marksGraded}% graded`;
     gradedProgressFill.style.width = `${gradeData.marksGraded}%`;
 
-    gradedProgressFill.style.backgroundColor = course.color;
-    gradedProgressFill.style.color = course.color;
 
-    document.documentElement.style.setProperty('--course-color', course.color);
 
 
     // Render assignments and exams
@@ -607,6 +711,57 @@ function renderCourseGrades(course) {
     }
 
 }
+
+function renderExtraMarks(course) {
+    const extraMarksList = document.getElementById("extra-marks-list");
+
+    extraMarksList.innerHTML = "";
+
+    const courseExtraMarks = extraMarks.filter(function(extraMark) {
+        return extraMark.course === course.code;
+    });
+
+
+    for (const extraMark of courseExtraMarks) {
+
+        const extraMarkElement = document.createElement("div");
+
+        extraMarkElement.classList.add("extra-mark-item");
+
+        extraMarkElement.innerHTML = `
+            <span>${extraMark.name}</span>
+            <span>+${extraMark.value}%</span>
+            <button class="delete-extra-mark">
+                <img src="images/delete-icon.svg" alt="Delete">
+            </button>
+        `;
+
+    
+
+        const deleteButton = extraMarkElement.querySelector(".delete-extra-mark");
+
+        deleteButton.addEventListener("click", function() {
+            
+            const userConfirm = confirm("Are you sure you would like to delete?");
+
+            if(!userConfirm){
+                return;
+            }
+
+            extraMarks = extraMarks.filter(function(item) {
+                return item.id !== extraMark.id;
+            });
+
+                localStorage.setItem("extraMarks", JSON.stringify(extraMarks));
+
+                showCourseDetails(course);
+        });
+
+        extraMarksList.appendChild(extraMarkElement);
+
+    }
+}
+
 
 
 function getCourseColor () {
