@@ -6,19 +6,446 @@ const calendarLink = document.getElementById("calendar-link");
 
 //Default course colours in case the user is not interested in manually assigning colours.
 const courseColours = [
-    "#daea7c",
-    "#8ae2cc",
-    "#f5ad72",
-    "#51c9e7",
-    "#a0eb90",
-    "#ea88be"
+    "#eb6b66",
+    "#d4ab3a",
+    "#67a055",
+    "#71a1ce",
+    "#6aaca9",
+    "#a873d3"
 ]
 
 
-let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
-let courses = JSON.parse(localStorage.getItem("courses")) || [];
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-let exams = JSON.parse(localStorage.getItem("exams")) || [];
+function demoData() {
+
+    function getDemoDate(daysFromToday) {
+
+        const date = new Date();
+
+        date.setDate(date.getDate() + daysFromToday);
+
+        return date.toISOString().split("T")[0];
+    }
+
+
+    const defaultCourses = [
+        {
+            id: 1,
+            code: "CEG 2136",
+            name: "Computer Architecture",
+            color: "#d4ab3a"
+        },
+        {
+            id: 2,
+            code: "ENG 1112",
+            name: "Technical Report Writing",
+            color: "#a873d3"
+        },
+        {
+            id: 3,
+            code: "CSI 2110",
+            name: "Data Structures and Algorithms",
+            color: "#67a055"
+        },
+        {
+            id: 4,
+            code: "MAT 1322",
+            name: "Calculus II",
+            color: "#71a1ce"
+        }
+    ];
+
+
+
+    const defaultAssignments = [
+
+        // CEG 2136
+        {
+            id: 101,
+            name: "Lab 1 - Number Systems",
+            course: "CEG 2136",
+            dueDate: getDemoDate(-10),
+            dueTime: "23:59",
+            weight: 2,
+            gradeEarned: 92,
+            priority: "Medium",
+            completed: true,
+            notes: ""
+        },
+
+        {
+            id: 102,
+            name: "Lab 2 - CPU Components",
+            course: "CEG 2136",
+            dueDate: getDemoDate(3),
+            dueTime: "23:59",
+            weight: 2,
+            gradeEarned: null,
+            priority: "Medium",
+            completed: false,
+            notes: ""
+        },
+
+        {
+            id: 103,
+            name: "Assignment 1 - Instruction Set Architecture",
+            course: "CEG 2136",
+            dueDate: getDemoDate(8),
+            dueTime: "23:59",
+            weight: 8,
+            gradeEarned: null,
+            priority: "High",
+            completed: false,
+            notes: ""
+        },
+
+
+        // ENG 1112
+        {
+            id: 104,
+            name: "Technical Memo",
+            course: "ENG 1112",
+            dueDate: getDemoDate(-5),
+            dueTime: "23:59",
+            weight: 10,
+            gradeEarned: 88,
+            priority: "High",
+            completed: true,
+            notes: ""
+        },
+
+        {
+            id: 105,
+            name: "Lab Report Draft",
+            course: "ENG 1112",
+            dueDate: getDemoDate(4),
+            dueTime: "23:59",
+            weight: 5,
+            gradeEarned: null,
+            priority: "High",
+            completed: false,
+            notes: ""
+        },
+
+        {
+            id: 106,
+            name: "Technical Report",
+            course: "ENG 1112",
+            dueDate: getDemoDate(14),
+            dueTime: "23:59",
+            weight: 20,
+            gradeEarned: null,
+            priority: "High",
+            completed: false,
+            notes: ""
+        },
+
+
+        // CSI 2110
+        {
+            id: 107,
+            name: "Lab 1 - Linked Lists",
+            course: "CSI 2110",
+            dueDate: getDemoDate(-8),
+            dueTime: "23:59",
+            weight: 0.2,
+            gradeEarned: 100,
+            priority: "Low",
+            completed: true,
+            notes: ""
+        },
+
+        {
+            id: 108,
+            name: "Lab 2 - Stacks and Queues",
+            course: "CSI 2110",
+            dueDate: getDemoDate(-2),
+            dueTime: "23:59",
+            weight: 0.2,
+            gradeEarned: 95,
+            priority: "Low",
+            completed: true,
+            notes: ""
+        },
+
+        {
+            id: 109,
+            name: "Assignment 1 - Algorithm Analysis",
+            course: "CSI 2110",
+            dueDate: getDemoDate(6),
+            dueTime: "23:59",
+            weight: 5,
+            gradeEarned: null,
+            priority: "High",
+            completed: false,
+            notes: ""
+        },
+
+        {
+            id: 110,
+            name: "Lab 3 - Binary Trees",
+            course: "CSI 2110",
+            dueDate: getDemoDate(10),
+            dueTime: "23:59",
+            weight: 0.2,
+            gradeEarned: null,
+            priority: "Medium",
+            completed: false,
+            notes: ""
+        },
+
+
+        // MAT 1322
+        {
+            id: 111,
+            name: "Problem Set 1 - Integration",
+            course: "MAT 1322",
+            dueDate: getDemoDate(-4),
+            dueTime: "23:59",
+            weight: 3,
+            gradeEarned: 94,
+            priority: "Medium",
+            completed: true,
+            notes: ""
+        },
+
+        {
+            id: 112,
+            name: "Problem Set 2 - Applications of Integration",
+            course: "MAT 1322",
+            dueDate: getDemoDate(5),
+            dueTime: "23:59",
+            weight: 3,
+            gradeEarned: null,
+            priority: "Medium",
+            completed: false,
+            notes: ""
+        },
+
+        {
+            id: 113,
+            name: "Assignment 1 - Improper Integrals",
+            course: "MAT 1322",
+            dueDate: getDemoDate(12),
+            dueTime: "23:59",
+            weight: 5,
+            gradeEarned: null,
+            priority: "High",
+            completed: false,
+            notes: ""
+        }
+    ];
+
+
+
+    const defaultExams = [
+
+        // CEG 2136
+        {
+            id: 201,
+            course: "CEG 2136",
+            name: "Midterm Exam",
+            date: getDemoDate(9),
+            time: "19:00",
+            weight: 20,
+            gradeEarned: null,
+            location: "STE 0130"
+        },
+
+        {
+            id: 202,
+            course: "CEG 2136",
+            name: "Final Exam",
+            date: getDemoDate(55),
+            time: "19:00",
+            weight: 35,
+            gradeEarned: null,
+            location: "TBD"
+        },
+
+
+        // ENG 1112
+        {
+            id: 203,
+            course: "ENG 1112",
+            name: "Midterm Test",
+            date: getDemoDate(16),
+            time: "14:30",
+            weight: 15,
+            gradeEarned: null,
+            location: "DRO 2010"
+        },
+
+        {
+            id: 204,
+            course: "ENG 1112",
+            name: "Final Exam",
+            date: getDemoDate(60),
+            time: "14:30",
+            weight: 25,
+            gradeEarned: null,
+            location: "TBD"
+        },
+
+
+        // CSI 2110
+        {
+            id: 205,
+            course: "CSI 2110",
+            name: "Midterm Exam",
+            date: getDemoDate(20),
+            time: "10:00",
+            weight: 20,
+            gradeEarned: null,
+            location: "STE 0130"
+        },
+
+        {
+            id: 206,
+            course: "CSI 2110",
+            name: "Final Exam",
+            date: getDemoDate(62),
+            time: "10:00",
+            weight: 40,
+            gradeEarned: null,
+            location: "TBD"
+        },
+
+
+        // MAT 1322
+        {
+            id: 207,
+            course: "MAT 1322",
+            name: "Midterm Exam",
+            date: getDemoDate(13),
+            time: "18:00",
+            weight: 20,
+            gradeEarned: null,
+            location: "STEM 125"
+        },
+
+        {
+            id: 208,
+            course: "MAT 1322",
+            name: "Final Exam",
+            date: getDemoDate(58),
+            time: "18:00",
+            weight: 35,
+            gradeEarned: null,
+            location: "TBD"
+        }
+    ];
+
+
+
+    const defaultTasks = [
+
+        {
+            id: 301,
+            course: "CEG 2136",
+            dueDate: getDemoDate(1),
+            description: "Review lecture notes",
+            completed: false
+        },
+
+        {
+            id: 302,
+            course: "CEG 2136",
+            dueDate: getDemoDate(3),
+            description: "Start Assignment 1",
+            completed: false
+        },
+
+        {
+            id: 303,
+            course: "ENG 1112",
+            dueDate: getDemoDate(4),
+            description: "Review technical report guidelines",
+            completed: false
+        },
+
+        {
+            id: 304,
+            course: "MAT 1322",
+            dueDate: getDemoDate(2),
+            description: "Practice integration problems",
+            completed: false
+        },
+
+        {
+            id: 305,
+            course: "CSI 2110",
+            dueDate: getDemoDate(5),
+            description: "Review linked lists and stacks",
+            completed: false
+        },
+
+        {
+            id: 306,
+            course: "CEG 2136",
+            dueDate: getDemoDate(7),
+            description: "Study for midterm",
+            completed: false
+        },
+
+        {
+            id: 307,
+            course: "MAT 1322",
+            dueDate: getDemoDate(8),
+            description: "Review applications of integration",
+            completed: false
+        },
+
+        {
+            id: 308,
+            course: "CSI 2110",
+            dueDate: getDemoDate(9),
+            description: "Practice binary tree problems",
+            completed: false
+        }
+
+    ];
+
+
+
+    return {
+        courses: defaultCourses,
+        assignments: defaultAssignments,
+        tasks: defaultTasks,
+        exams: defaultExams 
+    };
+}
+
+const demo = demoData();
+
+
+let courses = JSON.parse(localStorage.getItem("courses"));
+let assignments = JSON.parse(localStorage.getItem("assignments"));
+let exams = JSON.parse(localStorage.getItem("exams"));
+let tasks = JSON.parse(localStorage.getItem("tasks"));
+
+if (
+    localStorage.getItem("studyHubInitialized") === null &&
+    localStorage.getItem("courses") === null &&
+    localStorage.getItem("assignments") === null &&
+    localStorage.getItem("exams") === null &&
+    localStorage.getItem("tasks") === null
+) {
+
+    courses = demo.courses;
+    assignments = demo.assignments;
+    exams = demo.exams;
+    tasks = demo.tasks;
+
+    localStorage.setItem("courses", JSON.stringify(courses));
+    localStorage.setItem("assignments", JSON.stringify(assignments));
+    localStorage.setItem("exams", JSON.stringify(exams));
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+
+    localStorage.setItem("studyHubInitialized", "true");
+}
+
+
+
 
 let extraMarks = JSON.parse(localStorage.getItem("extraMarks")) || [];
 
