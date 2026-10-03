@@ -53,8 +53,6 @@ StudyHub is an ongoing personal project.  Some features I plan to explore includ
 
 - Syncing data between desktop and mobile devices
 
-- User accounts and cloud-based data storage
-
 - More detailed grade and academic progress tracking
 
 
