@@ -418,30 +418,29 @@ function demoData() {
 const demo = demoData();
 
 
-let courses = JSON.parse(localStorage.getItem("courses"));
-let assignments = JSON.parse(localStorage.getItem("assignments"));
-let exams = JSON.parse(localStorage.getItem("exams"));
-let tasks = JSON.parse(localStorage.getItem("tasks"));
+let courses = JSON.parse(localStorage.getItem("courses")) || [];
+let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
+let exams = JSON.parse(localStorage.getItem("exams")) || [];
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-if (
-    localStorage.getItem("studyHubInitialized") === null &&
+if (localStorage.getItem("studyHubInitialized") === null &&
     localStorage.getItem("courses") === null &&
     localStorage.getItem("assignments") === null &&
     localStorage.getItem("exams") === null &&
     localStorage.getItem("tasks") === null
-) {
+    ) {
 
-    courses = demo.courses;
-    assignments = demo.assignments;
-    exams = demo.exams;
-    tasks = demo.tasks;
+        courses = demo.courses;
+        assignments = demo.assignments;
+        exams = demo.exams;
+        tasks = demo.tasks;
 
-    localStorage.setItem("courses", JSON.stringify(courses));
-    localStorage.setItem("assignments", JSON.stringify(assignments));
-    localStorage.setItem("exams", JSON.stringify(exams));
-    localStorage.setItem("tasks", JSON.stringify(tasks));
+        localStorage.setItem("courses", JSON.stringify(courses));
+        localStorage.setItem("assignments", JSON.stringify(assignments));
+        localStorage.setItem("exams", JSON.stringify(exams));
+        localStorage.setItem("tasks", JSON.stringify(tasks));
 
-    localStorage.setItem("studyHubInitialized", "true");
+        localStorage.setItem("studyHubInitialized", "true");
 }
 
 
