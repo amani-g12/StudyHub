@@ -16,7 +16,7 @@ As a university student, I wanted one place where I could keep track of my cours
 
 - **Task Management** — Create smaller study tasks, organized by date, and mark them as completed.
 
-- **Grade Tracking** — Calculate your current grade based on completed assignments and exams.
+- **Grade Tracking** — Automatically calculate your current grade based on completed assignments and exams.
 
 - **Calendar** — View academic deadlines and events in one place.
 
