@@ -21,6 +21,26 @@
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+:root.dark-mode {
+    --background: #17191f;
+    --surface: #22252e;
+    --surface-subtle: #2b2f3a;
+
+    --text-primary: #f3f4f6;
+    --text-secondary: #a5acba;
+
+    --button: #383d49;
+
+    --border: #3a3f4b;
+
+    --accent: #7da6ff;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
 
 /* GLOBAL */
 
@@ -73,6 +93,72 @@ body {
     background-color: var(--surface-subtle);
 }
 
+/* Container for the toggle */
+.theme-toggle {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.theme-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+}
+
+/* Container for the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 21px;
+}
+
+/* Hide default checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The track */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background-color: var(--button);
+    border-radius: 24px;
+    transition: background-color 0.3s;
+}
+
+/* The circular slider */
+.slider::before {
+    content: "";
+    position: absolute;
+    height: 15px;
+    width: 15px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s;
+}
+
+/* Dark mode */
+.switch input:checked + .slider {
+    background-color: var(--accent);
+}
+
+.switch input:checked + .slider::before {
+    transform: translateX(19px);
+}
+
 
 /* MAIN CONTENT */
 
@@ -107,10 +193,12 @@ body {
 .edit-task img,
 .edit-exam img,
 .delete-exam img,
-.delete-extra-mark img {
+.delete-extra-mark img,
+.theme-toggle img{
     width: 20px;
     height: 22px;
 }
+
 
 .edit-course:hover,
 .delete-course:hover,
@@ -244,6 +332,10 @@ body {
     border-radius: 12px;
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
+}
+
+.course-card:hover {
+    cursor: pointer;
 }
 
 .course-color {
@@ -417,13 +509,13 @@ body {
 .grade-stat-value {
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--text-primary);
+    color: #1F2937;
 }
 
 .grade-stat-label {
     margin-top: 6px;
     font-size: 0.9rem;
-    color: var(--text-secondary);
+    color: #1F2937;
 }
 
 .current-grade-stat {
@@ -460,6 +552,7 @@ body {
 .grade-progress-fill {
     width: 100%;
     height: 12px;
+    border-radius: 10px;
 
     background-color: color-mix(in srgb, var(--course-color), white 80%);
 }
@@ -612,7 +705,7 @@ body {
 .calendar-weekdays,
 .calendar-grid {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: repeat(7, 1fr);○
 }
 
 .calendar-weekdays {
@@ -656,6 +749,7 @@ body {
     border: 4px solid var(--course-color);
     font-size: 15px;
     cursor: pointer;
+    color: #1F2937;
 }
 
 .calendar-exam:hover,
@@ -682,6 +776,7 @@ body {
     margin-top: 8px;
     margin-bottom: 4px;
     padding: 6px;
+    color: #1F2937;
     background-color: color-mix(in srgb, var(--course-color), white 30%);
     border-radius: 6px;
     font-size: 12px;

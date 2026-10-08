@@ -1,8 +1,19 @@
+//GLOBAL VARIABLES
+
 const mainContent = document.getElementById("main-content");
 const dashboardLink = document.getElementById("dashboard-link");
 const coursesLink = document.getElementById("courses-link");
 const assignmentsLink = document.getElementById("assignments-link");
 const calendarLink = document.getElementById("calendar-link");
+
+let extraMarks = JSON.parse(localStorage.getItem("extraMarks")) || [];
+
+let currentCalendarDate = new Date();
+
+let selectedCourseFilter = "All";
+let selectedStatusFilter = "All";
+let selectedPriorityFilter = "All";
+
 
 //Default course colours in case the user is not interested in manually assigning colours.
 const courseColours = [
@@ -14,6 +25,49 @@ const courseColours = [
     "#a873d3"
 ]
 
+//TOGGLE THEMES
+
+function applyTheme(theme) {
+    const isDark = (theme === "dark");
+
+    document.documentElement.classList.toggle("dark-mode", isDark);
+
+    localStorage.setItem("studyHubTheme", isDark ? "dark" : "light");
+
+    const themeToggle = document.querySelector("#theme-toggle input");
+
+    if (themeToggle) {
+        themeToggle.checked = isDark;
+    };
+
+    updateThemeIcons(isDark ? "dark" : "light");
+}
+
+function updateThemeIcons(theme) {
+    document.querySelectorAll("[data-light][data-dark]").forEach(img => {
+        img.src = (theme === "dark") ? img.dataset.dark : img.dataset.light;
+    });
+}
+
+const savedTheme = localStorage.getItem("studyHubTheme");
+
+updateThemeIcons(
+    document.documentElement.classList.contains("dark-mode") ? "dark": "light");
+
+if (savedTheme === "dark") {
+    document.documentElement.classList.add("dark-mode");
+}
+
+const themeToggle = document.querySelector("#theme-toggle input");
+
+if (themeToggle) {
+    themeToggle.addEventListener("change", function () {
+        applyTheme(this.checked ? "dark" : "light");
+    });
+}
+
+
+// STORAGE/DEMO DATA
 
 function demoData() {
 
@@ -447,18 +501,6 @@ if (localStorage.getItem("studyHubInitialized") === null &&
 
 
 
-let extraMarks = JSON.parse(localStorage.getItem("extraMarks")) || [];
-
-
-let currentCalendarDate = new Date();
-
-let selectedCourseFilter = "All";
-let selectedStatusFilter = "All";
-let selectedPriorityFilter = "All";
-
-
-
-
 
 dashboardLink.addEventListener("click", function(event){
 
@@ -704,13 +746,25 @@ function renderCourses() {
             <h3>${course.code}</h3>
             <p>${course.name}</p>
 
+            
             <button class="edit-course">
-                <img src="images/edit-icon.svg" alt="Edit">
+                <img
+                    src="images/edit-icon.svg"
+                    data-light="images/edit-icon.svg"
+                    data-dark="images/edit-icon-white.svg"
+                    alt="Edit"
+                >
             </button>
 
             <button class="delete-course">
-                <img src="images/delete-icon.svg" alt="Delete">
+                <img
+                    src="images/delete-icon.svg"
+                    data-light="images/delete-icon.svg"
+                    data-dark="images/delete-icon-white.svg"
+                    alt="Delete"
+                >
             </button>
+
         `;
 
         courseElement.addEventListener("click", function() {
@@ -752,6 +806,7 @@ function renderCourses() {
         
 
         courseList.appendChild(courseElement);
+        updateThemeIcons(document.documentElement.classList.contains("dark-mode") ? "dark": "light");
 
     }
 
@@ -1158,11 +1213,19 @@ function renderExtraMarks(course) {
         extraMarkElement.innerHTML = `
             <span>${extraMark.name}</span>
             <span>+${extraMark.value}%</span>
+
             <button class="delete-extra-mark">
-                <img src="images/delete-icon.svg" alt="Delete">
+                <img
+                    src="images/delete-icon.svg"
+                    data-light="images/delete-icon.svg"
+                    data-dark="images/delete-icon-white.svg"
+                    alt="Delete"
+                >
             </button>
+
         `;
 
+        
     
 
         const deleteButton = extraMarkElement.querySelector(".delete-extra-mark");
@@ -1184,7 +1247,10 @@ function renderExtraMarks(course) {
                 showCourseDetails(course);
         });
 
+        
+
         extraMarksList.appendChild(extraMarkElement);
+        updateThemeIcons(document.documentElement.classList.contains("dark-mode") ? "dark": "light");
 
     }
 }
@@ -1364,13 +1430,25 @@ function renderAssignments(){
             <span class="priority">${assignment.priority}</span>
             <span class="notes">${assignment.notes}</span>
 
+            
             <button class="edit-assignment">
-                <img src="images/edit-icon.svg" alt="Edit">
+                <img
+                    src="images/edit-icon.svg"
+                    data-light="images/edit-icon.svg"
+                    data-dark="images/edit-icon-white.svg"
+                    alt="Edit"
+                >
             </button>
 
             <button class="delete-assignment">
-                <img src="images/delete-icon.svg" alt="Delete">
+                <img
+                    src="images/delete-icon.svg"
+                    data-light="images/delete-icon.svg"
+                    data-dark="images/delete-icon-white.svg"
+                    alt="Delete"
+                >
             </button>
+
 
         `;
 
@@ -1424,6 +1502,7 @@ function renderAssignments(){
 
 
         assignmentList.appendChild(assignmentElement);
+        updateThemeIcons(document.documentElement.classList.contains("dark-mode") ? "dark": "light");
     }
 }
 
@@ -1668,12 +1747,25 @@ function renderTasks() {
             </span>
 
             <span class="task-due-date">${formatDate(task.dueDate)}</span>
+            
             <button class="edit-task">
-                <img src="images/edit-icon.svg" alt="Edit">
+                <img
+                    src="images/edit-icon.svg"
+                    data-light="images/edit-icon.svg"
+                    data-dark="images/edit-icon-white.svg"
+                    alt="Edit"
+                >
             </button>
+
             <button class="delete-task">
-                <img src="images/delete-icon.svg" alt="Delete">
+                <img
+                    src="images/delete-icon.svg"
+                    data-light="images/delete-icon.svg"
+                    data-dark="images/delete-icon-white.svg"
+                    alt="Delete"
+                >
             </button>
+
         `;
 
         const checkbox = taskElement.querySelector("input");
@@ -1723,6 +1815,7 @@ function renderTasks() {
         });
 
         taskGroups[dateGroup].appendChild(taskElement);
+        updateThemeIcons(document.documentElement.classList.contains("dark-mode") ? "dark": "light");
 
     }
 }
@@ -2031,14 +2124,25 @@ function showAssignmentDetails (assignment) {
 
 
             <div class="assignment-actions">
-
+                
                 <button class="edit-assignment" id="edit-assignment">
-                    <img src="images/edit-icon.svg" alt="Edit">
+                    <img
+                        src="images/edit-icon.svg"
+                        data-light="images/edit-icon.svg"
+                        data-dark="images/edit-icon-white.svg"
+                        alt="Edit"
+                    >
                 </button>
 
-                <button class="delete-assignment" id="delete-assignment">
-                    <img src="images/delete-icon.svg" alt="Delete">
+                <button class="delete-assignment" id="delete-assignment>
+                    <img
+                        src="images/delete-icon.svg"
+                        data-light="images/delete-icon.svg"
+                        data-dark="images/delete-icon-white.svg"
+                        alt="Delete"
+                    >
                 </button>
+
 
             </div>
 
@@ -2080,6 +2184,7 @@ function showAssignmentDetails (assignment) {
 
         renderCalendar();
     })
+    updateThemeIcons(document.documentElement.classList.contains("dark-mode") ? "dark": "light");
 
 }
 
@@ -2250,14 +2355,25 @@ function showExamDetails (exam) {
 
 
             <div class="exam-actions">
-
+                
                 <button class="edit-exam" id="edit-exam">
-                    <img src="images/edit-icon.svg" alt="Edit">
+                    <img
+                        src="images/edit-icon.svg"
+                        data-light="images/edit-icon.svg"
+                        data-dark="images/edit-icon-white.svg"
+                        alt="Edit"
+                    >
                 </button>
 
                 <button class="delete-exam" id="delete-exam">
-                    <img src="images/delete-icon.svg" alt="Delete">
+                    <img
+                        src="images/delete-icon.svg"
+                        data-light="images/delete-icon.svg"
+                        data-dark="images/delete-icon-white.svg"
+                        alt="Delete"
+                    >
                 </button>
+
 
             </div>
 
@@ -2299,7 +2415,8 @@ function showExamDetails (exam) {
 
         renderCalendar();
     })
-
+    
+    updateThemeIcons(document.documentElement.classList.contains("dark-mode") ? "dark": "light");
 }
 
 
