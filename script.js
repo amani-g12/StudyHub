@@ -32,25 +32,25 @@ function demoData() {
             id: 1,
             code: "CEG 2136",
             name: "Computer Architecture",
-            color: "#d4ab3a"
+            color: "#ee4266"
         },
         {
             id: 2,
             code: "ENG 1112",
             name: "Technical Report Writing",
-            color: "#a873d3"
+            color: "#9f45bf"
         },
         {
             id: 3,
             code: "CSI 2110",
             name: "Data Structures and Algorithms",
-            color: "#67a055"
+            color: "#ffd23f"
         },
         {
             id: 4,
             code: "MAT 1322",
             name: "Calculus II",
-            color: "#71a1ce"
+            color: "#3bceac"
         }
     ];
 
@@ -422,6 +422,7 @@ let courses = JSON.parse(localStorage.getItem("courses")) || [];
 let assignments = JSON.parse(localStorage.getItem("assignments")) || [];
 let exams = JSON.parse(localStorage.getItem("exams")) || [];
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
 
 if (localStorage.getItem("studyHubInitialized") === null &&
     localStorage.getItem("courses") === null &&

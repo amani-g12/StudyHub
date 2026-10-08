@@ -11,7 +11,7 @@
 
     --border: #E5E7EB;
 
-    --accent: #7e5111;
+    --accent: #11357e;
     --success: #22C55E;
     --warning: #F59E0B;
     --danger: #EF4444;
@@ -650,12 +650,17 @@ body {
     background-color: color-mix(
         in srgb,
         var(--course-color),
-        white 45%
+        white 50%
     );
     border-radius: 6px;
-    border: 3px solid var(--course-color);
+    border: 4px solid var(--course-color);
     font-size: 15px;
     cursor: pointer;
+}
+
+.calendar-exam:hover,
+.calendar-assignment:hover {
+    transform: translateY(-2px);
 }
 
 .calendar-exam strong {
@@ -677,7 +682,7 @@ body {
     margin-top: 8px;
     margin-bottom: 4px;
     padding: 6px;
-    background-color: var(--course-color);
+    background-color: color-mix(in srgb, var(--course-color), white 30%);
     border-radius: 6px;
     font-size: 12px;
     cursor: pointer;
