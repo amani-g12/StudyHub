@@ -49,22 +49,21 @@ function updateThemeIcons(theme) {
     });
 }
 
-const savedTheme = localStorage.getItem("studyHubTheme");
+function initializeTheme() {
+    const savedTheme = localStorage.getItem("studyHubTheme") || "light";
 
-updateThemeIcons(
-    document.documentElement.classList.contains("dark-mode") ? "dark": "light");
+    const themeToggle = document.querySelector("#theme-toggle input");
 
-if (savedTheme === "dark") {
-    document.documentElement.classList.add("dark-mode");
+    if (themeToggle) {
+        themeToggle.addEventListener("change", function () {
+            applyTheme(this.checked ? "dark" : "light");
+        });
+    }
+
+    applyTheme(savedTheme);
 }
 
-const themeToggle = document.querySelector("#theme-toggle input");
-
-if (themeToggle) {
-    themeToggle.addEventListener("change", function () {
-        applyTheme(this.checked ? "dark" : "light");
-    });
-}
+document.addEventListener("DOMContentLoaded", initializeTheme);
 
 
 // STORAGE/DEMO DATA
@@ -499,6 +498,57 @@ if (localStorage.getItem("studyHubInitialized") === null &&
 }
 
 
+// FORMS MODALS
+
+function openModal(content) {
+    const modalOverlay = document.getElementById("modal-overlay");
+    const modalContent = document.getElementById("modal-content");
+
+    modalContent.innerHTML = content;
+    modalOverlay.classList.remove("hidden");
+
+    document.body.classList.add("modal-open");
+}
+
+function closeModal() {
+    const modalOverlay = document.getElementById("modal-overlay");
+
+    modalOverlay.classList.add("hidden");
+    document.body.classList.remove("modal-open");
+}
+
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    const modalCloseButton = document.querySelector(".modal-close");
+    const modalOverlay = document.getElementById("modal-overlay");
+
+    if (!modalCloseButton || !modalOverlay) {
+        console.error("Modal HTML elements could not be found.");
+        return;
+    }
+
+    modalCloseButton.addEventListener("click", closeModal);
+
+    // Close when clicking the backdrop
+    modalOverlay.addEventListener("click", function(event) {
+        if (event.target === modalOverlay) {
+            closeModal();
+        }
+    });
+
+    // Close when pressing Escape
+    document.addEventListener("keydown", function(event) {
+        if (
+            event.key === "Escape" &&
+            !modalOverlay.classList.contains("hidden")
+        ) {
+            closeModal();
+        }
+    });
+
+});
+
 
 
 
@@ -918,31 +968,80 @@ function showCourseDetails(course) {
 
 function showCourseForm(courseToEdit = null) {
 
-    mainContent.innerHTML = `
-        <h2>${courseToEdit ? "Edit Course" : "Add Course"}</h2>
+    openModal(`
+        <div class="modal-header">
+            <h2 id="modal-title">
+                ${courseToEdit ? "Edit Course" : "Add Course"}
+            </h2>
+            <div class="modal-accent-bar"></div>
+        </div>
 
         <form id="course-form" novalidate>
 
-            <label>Course Code</label>
-            <input type="text" id="course-code"
-                value="${courseToEdit ? courseToEdit.code : ""}">
+            <div class="form-field">
+                <label for="course-code">Course Code *</label>
+                <input
+                    type="text"
+                    id="course-code"
+                    placeholder="e.g. SEG2105"
+                    value="${courseToEdit ? courseToEdit.code : ""}"
+                >
+            </div>
 
-            <label>Course Name</label>
-            <input type="text" id="course-name"
-                value="${courseToEdit ? courseToEdit.name : ""}">
+            <div class="form-field">
+                <label for="course-name">Course Name *</label>
+                <input
+                    type="text"
+                    id="course-name"
+                    placeholder="e.g. Introduction to Software Engineering"
+                    value="${courseToEdit ? courseToEdit.name : ""}"
+                >
+            </div>
 
-            <label>Course Colour</label>
-            <input type="color" id="course-color"
-                value="${courseToEdit ? courseToEdit.color : getCourseColor()}">
+            <div class="form-field">
+                <label for="course-color">Course Colour</label>
+
+                <div class="course-color-picker">
+                    <div
+                        class="course-color-preview"
+                        id="course-color-preview"
+                        style="background-color: ${courseToEdit ? courseToEdit.color : getCourseColor()};"
+                    ></div>
+
+                    <div class="course-color-info">
+                        <span class="course-color-name">Choose a colour</span>
+                        <span class="course-color-description">
+                            Personalize your course
+                        </span>
+                    </div>
+
+                    <input
+                        type="color"
+                        id="course-color"
+                        value="${courseToEdit ? courseToEdit.color : getCourseColor()}"
+                    >
+
+                    <label for="course-color" class="course-color-button">
+                        Choose
+                    </label>
+                </div>
+            </div>
 
             <button type="submit" class="save-course-button">
                 ${courseToEdit ? "Save Changes" : "Add Course"}
             </button>
 
         </form>
-    `;
+    `);
 
     const courseForm = document.getElementById("course-form");
+
+    const courseColorInput = document.getElementById("course-color");
+    const courseColorPreview = document.getElementById("course-color-preview");
+
+    courseColorInput.addEventListener("input", function() {
+        courseColorPreview.style.backgroundColor = courseColorInput.value;
+    });
 
     courseForm.addEventListener("submit", function(event) {
 
@@ -977,7 +1076,7 @@ function showCourseForm(courseToEdit = null) {
         }
 
         localStorage.setItem("courses", JSON.stringify(courses));
-
+        closeModal();
         showCourses();
 
     });
@@ -1509,47 +1608,109 @@ function renderAssignments(){
 
 function showAssignmentForm(assignmentToEdit = null) {
 
-    mainContent.innerHTML = `
-        <h2>${assignmentToEdit ? "Edit Assignment" : "Add Assignment"}</h2>
+    openModal(`
+
+        <div class="modal-header">
+
+            <h2 class="modal-title" id="modal-title">
+                ${assignmentToEdit ? "Edit Assignment" : "Add Assignment"}
+            </h2>
+            <div class="modal-accent-bar"></div>
+
+        </div>
+
+
 
         <form id="assignment-form" novalidate>
 
-            <label>Assignment Name</label>
-            <input type="text" id="assignment-name" value="${assignmentToEdit ? assignmentToEdit.name : ""}">
+        <div class="form-field">
+            <label for="assignment-name">Assignment Name *</label>
+            <input
+                type="text"
+                id="assignment-name"
+                value="${assignmentToEdit ? assignmentToEdit.name : ""}"
+                placeholder="e.g. Assignment 1"
+            >
+        </div>
 
-            <label>Course</label>
+        <div class="form-field">
+            <label for="assignment-course">Course *</label>
             <select id="assignment-course">
                 <option value="">Select a course</option>
             </select>
+        </div>
 
-            <label>Due Date</label>
-            <input type="date" id="assignment-due-date" value="${assignmentToEdit ? assignmentToEdit.dueDate : ""}">
+        <div class="form-row">
+            <div class="form-field">
+                <label for="assignment-due-date">Due Date *</label>
+                <input
+                    type="date"
+                    id="assignment-due-date"
+                    value="${assignmentToEdit ? assignmentToEdit.dueDate : ""}"
+                >
+            </div>
 
-            <label>Due Time</label>
-            <input type="time" id="assignment-due-time" value="${assignmentToEdit ? assignmentToEdit.dueTime : ""}">
+            <div class="form-field">
+                <label for="assignment-due-time">Due Time</label>
+                <input
+                    type="time"
+                    id="assignment-due-time"
+                    value="${assignmentToEdit ? assignmentToEdit.dueTime : ""}"
+                >
+            </div>
+        </div>
 
-            <label>Weight (%)</label>
-            <input type="number" id="assignment-weight" value="${assignmentToEdit ? assignmentToEdit.weight : ""}">
+        <div class="form-row">
+            <div class="form-field">
+                <label for="assignment-weight">Weight (%) *</label>
+                <input
+                    type="number"
+                    id="assignment-weight"
+                    value="${assignmentToEdit ? assignmentToEdit.weight : ""}"
+                    placeholder="e.g. 5"
+                    min="0"
+                    max="100"
+                    step="any"
+                >
+            </div>
 
-            <label>Grade Earned (%)</label>
-            <input type="number" id="assignment-grade-earned" value="${assignmentToEdit ? assignmentToEdit.gradeEarned : ""}">
+            <div class="form-field">
+                <label for="assignment-grade-earned">Grade Earned (%)</label>
+                <input
+                    type="number"
+                    id="assignment-grade-earned"
+                    value="${assignmentToEdit && assignmentToEdit.gradeEarned != null ? assignmentToEdit.gradeEarned : ""}"
+                    placeholder="e.g. 67"
+                    min="0"
+                    max="100"
+                    step="any"
+                >
+            </div>
+        </div>
 
-            <label class="priority-field">Priority</label>
+        <div class="form-field">
+            <label for="assignment-priority" class="priority-field">Priority</label>
             <select class="priority-field" id="assignment-priority">
                 <option value="Low">Low</option>
                 <option value="Medium">Medium</option>
                 <option value="High">High</option>
             </select>
+        </div>
 
-            <label>Notes</label>
-            <textarea id="assignment-notes">${assignmentToEdit ? assignmentToEdit.notes : ""}</textarea>
+        <div class="form-field">
+            <label for="assignment-notes">Notes</label>
+            <textarea
+                id="assignment-notes"
+                placeholder="Add any details or reminders..."
+            >${assignmentToEdit ? assignmentToEdit.notes : ""}</textarea>
+        </div>
 
-            <button type="submit" class="save-assignment-button">
-                ${assignmentToEdit ? "Save changes" : "Add Assignment"}
-            </button>
+        <button type="submit" class="save-assignment-button">
+            ${assignmentToEdit ? "Save changes" : "Add Assignment"}
+        </button>
 
-        </form>
-    `;
+    </form>
+    `);
 
     const assignmentForm = document.getElementById("assignment-form");
 
@@ -1628,7 +1789,7 @@ function showAssignmentForm(assignmentToEdit = null) {
         }
 
         localStorage.setItem("assignments", JSON.stringify(assignments));
-
+        closeModal();
         showAssignments();
 
         });
@@ -1851,30 +2012,48 @@ function getTaskDateGroup(dueDate) {
 
 function showTaskForm(taskToEdit = null) {
 
-    mainContent.innerHTML = `
-        <h2>${taskToEdit ? "Edit Task" : "Add Task"}</h2>
+    openModal(`
+        <div class="modal-header">
+            <h2 id="modal-title">
+                ${taskToEdit ? "Edit Task" : "Add Task"}
+            </h2>
+            <div class="modal-accent-bar"></div>
+        </div>
 
         <form id="task-form" novalidate>
 
-            <label>Course</label>
-            <select id="task-course">
-                <option value="">Select a course</option>
-            </select>
+            <div class="form-field">
+                <label for="task-course">Course *</label>
+                <select id="task-course">
+                    <option value="">Select a course</option>
+                </select>
+            </div>
 
-            <label>Due Date</label>
-            <input type="date" id="task-due-date"
-                value="${taskToEdit ? taskToEdit.dueDate : ""}">
+            <div class="form-field">
+                <label for="task-due-date">Due Date *</label>
+                <input
+                    type="date"
+                    id="task-due-date"
+                    value="${taskToEdit ? taskToEdit.dueDate : ""}"
+                >
+            </div>
 
-            <label>Task</label>
-            <input type="text" id="task-description"
-                value="${taskToEdit ? taskToEdit.description : ""}">
+            <div class="form-field">
+                <label for="task-description">Task Description *</label>
+                <input
+                    type="text"
+                    id="task-description"
+                    value="${taskToEdit ? taskToEdit.description : ""}"
+                    placeholder="e.g. Complete reading for Chapter 3"
+                >
+            </div>
 
             <button type="submit" class="add-new-task-button">
                 ${taskToEdit ? "Save Changes" : "Add Task"}
             </button>
 
         </form>
-    `;
+    `);
 
     const taskForm = document.getElementById("task-form");
 
@@ -1929,7 +2108,7 @@ function showTaskForm(taskToEdit = null) {
         }
 
         localStorage.setItem("tasks", JSON.stringify(tasks));
-
+        closeModal();
         showDashboard();
 
     });
@@ -2194,41 +2373,101 @@ function showAssignmentDetails (assignment) {
 function showExamForm(examToEdit = null) { /*optional parameter, when we do send in something, the form 
     knows we're editing an already existing exam, otherwise, we add a new exam */
 
-    mainContent.innerHTML = `
-        <h2>${examToEdit ? "Edit Exam" : "Add Exam"}</h2>
+    openModal(`
+
+        <div class="modal-header">
+
+            <h2 id="modal-title">
+                ${examToEdit ? "Edit Exam" : "Add Exam"}
+            </h2>
+            <div class="modal-accent-bar"></div>
+
+        </div>
+
 
         <form id="exam-form" novalidate>
 
+            <div class="form-field">
+                <label for="exam-course">Course *</label>
+                <select id="exam-course">
+                    <option value="">Select a course</option>
+                </select>
+            </div>
 
-            <label>Course</label>
-            <select id="exam-course">
-                <option value="">Select a course</option>
-            </select>
+            <div class="form-field">
+                <label for="exam-name">Exam Name *</label>
+                <input
+                    type="text"
+                    id="exam-name"
+                    value="${examToEdit ? examToEdit.name : ""}"
+                    placeholder="e.g. Midterm Exam"
+                >
+            </div>
 
-            <label>Name</label>
-            <input type="text" id="exam-name" value="${examToEdit ? examToEdit.name : ""}">
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="exam-date">Date *</label>
+                    <input
+                        type="date"
+                        id="exam-date"
+                        value="${examToEdit ? examToEdit.date : ""}"
+                    >
+                </div>
 
-            <label>Date</label>
-            <input type="date" id="exam-date" value="${examToEdit ? examToEdit.date : ""}">
+                <div class="form-field">
+                    <label for="exam-time">Time</label>
+                    <input
+                        type="time"
+                        id="exam-time"
+                        value="${examToEdit ? examToEdit.time : ""}"
+                    >
+                </div>
+            </div>
 
-            <label>Time</label>
-            <input type="time" id="exam-time" value="${examToEdit ? examToEdit.time : ""}">
+            <div class="form-row">
+                <div class="form-field">
+                    <label for="exam-weight">Weight (%) *</label>
+                    <input
+                        type="number"
+                        id="exam-weight"
+                        value="${examToEdit ? examToEdit.weight : ""}"
+                        placeholder="e.g. 25"
+                        min="0"
+                        max="100"
+                        step="any"
+                    >
+                </div>
 
-            <label>Weight (%)</label>
-            <input type="number" id="exam-weight" value="${examToEdit ? examToEdit.weight : ""}">
+                <div class="form-field">
+                    <label for="exam-grade-earned">Grade Earned (%)</label>
+                    <input
+                        type="number"
+                        id="exam-grade-earned"
+                        value="${examToEdit && examToEdit.gradeEarned != null ? examToEdit.gradeEarned : ""}"
+                        placeholder="e.g. 80"
+                        min="0"
+                        max="100"
+                        step="any"
+                    >
+                </div>
+            </div>
 
-            <label>Grade Earned (%)</label>
-            <input type="number" id="exam-grade-earned" value="${examToEdit ? examToEdit.gradeEarned : ""}">
-
-            <label>Location</label>
-            <input type="text" id="exam-location" value="${examToEdit ? examToEdit.location : ""}">
+            <div class="form-field">
+                <label for="exam-location">Location</label>
+                <input
+                    type="text"
+                    id="exam-location"
+                    value="${examToEdit ? examToEdit.location : ""}"
+                    placeholder="e.g. SITE 2020"
+                >
+            </div>
 
             <button type="submit" class="save-exam-button">
                 ${examToEdit ? "Save changes" : "Add Exam"}
             </button>
 
         </form>
-    `;
+    `);
 
 
     const examForm = document.getElementById("exam-form");
@@ -2298,7 +2537,7 @@ function showExamForm(examToEdit = null) { /*optional parameter, when we do send
         }
 
         localStorage.setItem("exams", JSON.stringify(exams));
-
+        closeModal();
         showCalendar();
 
         });
