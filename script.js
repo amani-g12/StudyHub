@@ -1960,12 +1960,6 @@ function renderTasks() {
 
         deleteButton.addEventListener("click", function() {
 
-            const userConfirm = confirm("Are you sure you would like to delete?");
-
-            if(!userConfirm){
-                return;
-            }
-
             tasks = tasks.filter(function(item) {
                 return item.id !== task.id;
             });

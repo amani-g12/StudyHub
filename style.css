@@ -29,6 +29,8 @@
     --text-primary: #f3f4f6;
     --text-secondary: #a5acba;
 
+    --white-mix: color-mix(in srgb, white 90%, transparent); 
+
     --button: #383d49;
 
     --border: #3a3f4b;
@@ -624,10 +626,6 @@ body.modal-open {
 .course-grade-item {
     padding: 12px 15px;
     border-bottom: 1px solid var(--border);
-}
-
-.course-grade-item:hover {
-    background-color: color-mix(in srgb, var(--course-color), white 90%);
 }
 
 .course-grade-header span:nth-child(2),
